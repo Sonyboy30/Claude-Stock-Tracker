@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MRVL Risk Score Report</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08090d;--surface:#0f1117;--surface2:#161922;--border:#1e2330;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#a855f7;
+  --cyan:#06b6d4;--text:#e2e8f0;--muted:#64748b;--accent:#6366f1;
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6}
+.report{max-width:1100px;margin:0 auto;padding:0}
+.page{padding:32px 36px;min-height:100vh;border-bottom:2px solid var(--border)}
+.page:last-child{border-bottom:none}
+
+/* HEADER */
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.ticker-block .ticker{font-family:var(--mono);font-size:32px;font-weight:700;color:#fff;letter-spacing:-1px}
+.ticker-block .name{color:var(--muted);font-size:13px;margin-top:2px}
+.stock-bar{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.price-main{font-family:var(--mono);font-size:26px;font-weight:700;color:#fff}
+.price-change{font-family:var(--mono);font-size:13px;padding:3px 8px;border-radius:4px}
+.up{background:rgba(34,197,94,.15);color:var(--green)}
+.dn{background:rgba(239,68,68,.15);color:var(--red)}
+.stock-meta{display:flex;gap:20px;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:2px}
+.meta-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.meta-val{font-family:var(--mono);font-size:13px;color:var(--text);font-weight:600}
+.report-tag{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:right}
+.report-tag span{display:block;color:var(--accent);font-size:11px;font-weight:600}
+
+/* GAUGE + KPI STRIP */
+.gauge-kpi{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-bottom:28px}
+.gauge-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;align-items:center}
+.gauge-title{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.gauge-svg{width:200px;height:110px}
+.gauge-score{font-family:var(--mono);font-size:36px;font-weight:700;color:#f59e0b;text-align:center;margin-top:4px}
+.gauge-label{font-family:var(--mono);font-size:11px;color:var(--amber);text-align:center;letter-spacing:1px}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 14px;display:flex;flex-direction:column;gap:4px}
+.kpi-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.kpi-val{font-family:var(--mono);font-size:18px;font-weight:700;color:#fff}
+.kpi-sub{font-size:11px;color:var(--muted)}
+.kpi-badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;font-weight:600}
+.badge-g{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-r{background:rgba(239,68,68,.15);color:var(--red)}
+.badge-a{background:rgba(245,158,11,.15);color:var(--amber)}
+
+/* PRICE CHART */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.section-title{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.chart-legend{display:flex;gap:16px}
+.leg-item{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+
+/* CARDS GRID */
+.cards-section{margin-bottom:28px}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card-green::before{background:var(--green)}
+.card-red::before{background:var(--red)}
+.card-amber::before{background:var(--amber)}
+.card-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.card-val{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.card-context{font-size:12px;color:var(--muted);line-height:1.4}
+.card-signal{display:flex;align-items:center;gap:6px;margin-top:8px;font-family:var(--mono);font-size:10px;font-weight:600}
+.sig-g{color:var(--green)}
+.sig-r{color:var(--red)}
+.sig-a{color:var(--amber)}
+
+/* SCORE BREAKDOWN */
+.score-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+.score-rows{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.score-row{display:grid;grid-template-columns:180px 1fr 60px;gap:16px;align-items:center}
+.score-name{font-family:var(--mono);font-size:12px;color:var(--text)}
+.score-weight{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.bar-track{background:var(--surface2);border-radius:100px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;transition:width .4s}
+.score-num{font-family:var(--mono);font-size:13px;font-weight:700;text-align:right}
+
+/* PAGE 2 */
+.section-header{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* TABLE */
+.qtable{width:100%;border-collapse:collapse;margin-bottom:28px}
+.qtable th{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;background:var(--surface2);text-align:left}
+.qtable td{font-family:var(--mono);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.qtable tr:last-child td{border-bottom:none}
+.qtable tr:hover td{background:rgba(255,255,255,.02)}
+.beat{color:var(--green);font-weight:600}
+.miss{color:var(--red);font-weight:600}
+.inline-badge{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:600;font-family:var(--mono)}
+
+/* EARNINGS UPDATE */
+.earnings-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+.earnings-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:14px}
+.e-item{display:flex;flex-direction:column;gap:4px}
+.e-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase}
+.e-val{font-family:var(--mono);font-size:16px;font-weight:700;color:#fff}
+.e-vs{font-family:var(--mono);font-size:10px}
+
+/* CATALYSTS RISKS */
+.dual-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.col-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.col-title{font-family:var(--mono);font-size:11px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cat-title{color:var(--green)}
+.risk-title{color:var(--red)}
+.item-row{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
+.item-icon{font-size:14px;margin-top:1px;flex-shrink:0}
+.item-text{font-size:13px;color:var(--text);line-height:1.5}
+.item-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* BOTTOM LINE */
+.bottom-line{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.verdict-grid{display:grid;grid-template-columns:1fr 240px;gap:28px;align-items:center}
+.verdict-text h3{font-size:18px;font-weight:700;color:#fff;margin-bottom:10px}
+.verdict-text p{font-size:13px;color:var(--muted);line-height:1.7}
+.rating-bar-wrap{display:flex;flex-direction:column;gap:8px}
+.rating-bar-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.rating-track{display:flex;height:28px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.r-seg{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;opacity:.4;cursor:default;transition:opacity .2s}
+.r-seg.active{opacity:1}
+.r-sell{background:#7f1d1d;color:#fca5a5}
+.r-reduce{background:#92400e;color:#fcd34d}
+.r-hold{background:#1e3a5f;color:#93c5fd}
+.r-buy{background:#14532d;color:#86efac}
+.r-strong{background:#052e16;color:#4ade80}
+.r-seg.active{outline:2px solid rgba(255,255,255,.2);outline-offset:-2px}
+.verdict-badge{margin-top:12px;display:inline-block;font-family:var(--mono);font-size:13px;font-weight:700;padding:6px 16px;border-radius:6px;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.footer{margin-top:20px;font-size:11px;color:var(--muted);padding-top:12px;border-top:1px solid var(--border)}
+
+/* EXPORT */
+.export-btn{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:12px;font-weight:600;cursor:pointer;z-index:999;display:flex;align-items:center;gap:8px;letter-spacing:.5px;box-shadow:0 4px 20px rgba(99,102,241,.4)}
+.export-btn:hover{background:#4f46e5}
+.page-break{display:flex;align-items:center;gap:12px;padding:10px 36px;background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pb-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="report">
+
+<!-- ═══════════════════════════════════ PAGE 1 ═══════════════════════════════════ -->
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ticker-block">
+      <div class="ticker">MRVL</div>
+      <div class="name">Marvell Technology, Inc. · NASDAQ · Semiconductors &amp; AI Infrastructure</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+      <div class="stock-bar">
+        <div class="price-main">$147.84</div>
+        <div class="price-change up">▲ +4.74% today</div>
+        <div class="price-change up">▲ +185.96% 52-wk</div>
+      </div>
+      <div class="stock-meta">
+        <div class="meta-item"><span class="meta-label">52W Range</span><span class="meta-val">$48.09 – $115.66*</span></div>
+        <div class="meta-item"><span class="meta-label">Mkt Cap</span><span class="meta-val">$122.2B</span></div>
+        <div class="meta-item"><span class="meta-label">Avg Vol</span><span class="meta-val">~32M</span></div>
+        <div class="meta-item"><span class="meta-label">Beta</span><span class="meta-val">1.82</span></div>
+        <div class="meta-item"><span class="meta-label">Dividend</span><span class="meta-val">$0.24 / 0.16%</span></div>
+      </div>
+      <div class="report-tag">RISK SCORE REPORT <span>Generated Apr 21, 2026</span></div>
+    </div>
+  </div>
+
+  <!-- GAUGE + KPI STRIP -->
+  <div class="gauge-kpi">
+    <div class="gauge-card">
+      <div class="gauge-title">Overall Risk Score</div>
+      <svg class="gauge-svg" viewBox="0 0 200 110">
+        <defs>
+          <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#22c55e"/>
+            <stop offset="40%" style="stop-color:#f59e0b"/>
+            <stop offset="75%" style="stop-color:#ef4444"/>
+            <stop offset="100%" style="stop-color:#7c3aed"/>
+          </linearGradient>
+        </defs>
+        <!-- track -->
+        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1e2330" stroke-width="16" stroke-linecap="round"/>
+        <!-- fill to score 58/100 = ~58% of 180deg → 104.4deg -->
+        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" stroke-width="16" stroke-linecap="round"
+          stroke-dasharray="251.2" stroke-dashoffset="105"/>
+        <!-- needle -->
+        <line x1="100" y1="100" x2="51" y2="44" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="5" fill="#f59e0b"/>
+        <!-- labels -->
+        <text x="18" y="115" font-family="JetBrains Mono" font-size="9" fill="#64748b">LOW</text>
+        <text x="89" y="20" font-family="JetBrains Mono" font-size="9" fill="#64748b">MED</text>
+        <text x="170" y="115" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="end">HIGH</text>
+        <!-- tick marks -->
+        <line x1="20" y1="100" x2="26" y2="100" stroke="#1e2330" stroke-width="2"/>
+        <line x1="100" y1="20" x2="100" y2="26" stroke="#1e2330" stroke-width="2"/>
+        <line x1="180" y1="100" x2="174" y2="100" stroke="#1e2330" stroke-width="2"/>
+      </svg>
+      <div class="gauge-score">58 / 100</div>
+      <div class="gauge-label">MODERATE RISK</div>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">FY2026 Revenue</div>
+        <div class="kpi-val">$8.20B</div>
+        <div class="kpi-sub">Record · +42% YoY</div>
+        <div class="kpi-badge badge-g">BEAT</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Q4 Non-GAAP EPS</div>
+        <div class="kpi-val">$0.80</div>
+        <div class="kpi-sub">Est. $0.71 · +12.7%</div>
+        <div class="kpi-badge badge-g">BEAT</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">FWD P/E Ratio</div>
+        <div class="kpi-val">38.6x</div>
+        <div class="kpi-sub">Trailing: 57.1x</div>
+        <div class="kpi-badge badge-a">ELEVATED</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">FY27 Rev Outlook</div>
+        <div class="kpi-val">~$11B</div>
+        <div class="kpi-sub">&gt;30% YoY growth</div>
+        <div class="kpi-badge badge-g">RAISED</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Gross Margin (nGAAP)</div>
+        <div class="kpi-val">59.0%</div>
+        <div class="kpi-sub">Q4 FY26 · +640bps YoY</div>
+        <div class="kpi-badge badge-g">EXPANDING</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Data Center Rev</div>
+        <div class="kpi-val">$1.65B</div>
+        <div class="kpi-sub">Q4 · 74% of total</div>
+        <div class="kpi-badge badge-g">+21% YoY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Net Debt Position</div>
+        <div class="kpi-val">-$2.15B</div>
+        <div class="kpi-sub">Debt $4.79B / Cash $2.64B</div>
+        <div class="kpi-badge badge-a">MONITOR</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Analyst Consensus</div>
+        <div class="kpi-val">BUY</div>
+        <div class="kpi-sub">Avg PT $121–$126</div>
+        <div class="kpi-badge badge-g">STRONG BUY</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICE CHART -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="section-title">12-Month Price History (Apr 2025 – Apr 2026)</div>
+      <div class="chart-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#6366f1"></div>MRVL Price</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Earnings Beat</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div>Key Event</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Sell-off</div>
+      </div>
+    </div>
+    <svg viewBox="0 0 1000 220" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" style="stop-color:#6366f1;stop-opacity:.3"/>
+          <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0"/>
+        </linearGradient>
+      </defs>
+      <!-- grid lines -->
+      <line x1="30" y1="30" x2="990" y2="30" stroke="#1e2330" stroke-width="1"/>
+      <line x1="30" y1="70" x2="990" y2="70" stroke="#1e2330" stroke-width="1"/>
+      <line x1="30" y1="110" x2="990" y2="110" stroke="#1e2330" stroke-width="1"/>
+      <line x1="30" y1="150" x2="990" y2="150" stroke="#1e2330" stroke-width="1"/>
+      <line x1="30" y1="190" x2="990" y2="190" stroke="#1e2330" stroke-width="1"/>
+      <!-- y-axis labels -->
+      <text x="25" y="33" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="end">$150</text>
+      <text x="25" y="73" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="end">$120</text>
+      <text x="25" y="113" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="end">$90</text>
+      <text x="25" y="153" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="end">$60</text>
+      <text x="25" y="193" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="end">$30</text>
+      <!-- month labels -->
+      <text x="55" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Apr'25</text>
+      <text x="135" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">May</text>
+      <text x="215" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Jun</text>
+      <text x="295" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Jul</text>
+      <text x="375" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Aug</text>
+      <text x="455" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Sep</text>
+      <text x="535" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Oct</text>
+      <text x="615" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Nov</text>
+      <text x="695" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Dec</text>
+      <text x="775" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Jan'26</text>
+      <text x="855" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Feb</text>
+      <text x="935" y="210" font-family="JetBrains Mono" font-size="9" fill="#64748b" text-anchor="middle">Mar–Apr</text>
+
+      <!-- price: $58→$72→$80→$95→$100→$92→$88→$98→$112→$76→$82→$90→$148 -->
+      <!-- scale: $30=190, $150=30 → px/$ = 160/120 = 1.333 → y = 190-(price-30)*1.333 -->
+      <!-- pts: 55,162  135,143  215,137  295,117  375,110  455,120  535,124  615,117  695,104  775,140  855,133  935,83 -->
+      <polygon points="55,163 135,143 215,136 295,117 375,110 455,120 535,124 615,117 695,104 775,140 855,133 935,83 935,190 55,190" fill="url(#lineGrad)"/>
+      <polyline points="55,163 135,143 215,136 295,117 375,110 455,120 535,124 615,117 695,104 775,140 855,133 935,83" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linejoin="round"/>
+
+      <!-- Annotation: Apr-25 selloff -->
+      <circle cx="55" cy="163" r="5" fill="#ef4444"/>
+      <line x1="55" y1="158" x2="55" y2="80" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="10" y="62" width="90" height="18" rx="3" fill="rgba(239,68,68,.15)" stroke="#ef4444" stroke-width=".5"/>
+      <text x="55" y="74" font-family="JetBrains Mono" font-size="8" fill="#ef4444" text-anchor="middle">$58 Macro sell-off</text>
+
+      <!-- Q1 FY26 earnings beat Jun -->
+      <circle cx="215" cy="136" r="5" fill="#22c55e"/>
+      <line x1="215" y1="131" x2="215" y2="50" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="165" y="34" width="100" height="18" rx="3" fill="rgba(34,197,94,.15)" stroke="#22c55e" stroke-width=".5"/>
+      <text x="215" y="46" font-family="JetBrains Mono" font-size="8" fill="#22c55e" text-anchor="middle">Q1 FY26 Beat</text>
+
+      <!-- Peak $112 Dec -->
+      <circle cx="695" cy="104" r="5" fill="#f59e0b"/>
+      <line x1="695" y1="99" x2="695" y2="50" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="635" y="34" width="120" height="18" rx="3" fill="rgba(245,158,11,.15)" stroke="#f59e0b" stroke-width=".5"/>
+      <text x="695" y="46" font-family="JetBrains Mono" font-size="8" fill="#f59e0b" text-anchor="middle">$112 · Q3 FY26 Beat</text>
+
+      <!-- Pullback Jan -->
+      <circle cx="775" cy="140" r="5" fill="#ef4444"/>
+      <line x1="775" y1="135" x2="775" y2="80" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="725" y="62" width="100" height="18" rx="3" fill="rgba(239,68,68,.15)" stroke="#ef4444" stroke-width=".5"/>
+      <text x="775" y="74" font-family="JetBrains Mono" font-size="8" fill="#ef4444" text-anchor="middle">Pullback ~$76</text>
+
+      <!-- Q4 Surge Mar -->
+      <circle cx="935" cy="83" r="5" fill="#22c55e"/>
+      <line x1="935" y1="78" x2="935" y2="48" stroke="#22c55e" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="867" y="32" width="108" height="18" rx="3" fill="rgba(34,197,94,.15)" stroke="#22c55e" stroke-width=".5"/>
+      <text x="921" y="44" font-family="JetBrains Mono" font-size="8" fill="#22c55e" text-anchor="middle">Q4 Beat +18.4%</text>
+    </svg>
+  </div>
+
+  <!-- VALUATION CARDS -->
+  <div class="cards-section">
+    <div class="section-title" style="margin-bottom:12px">Valuation Metrics</div>
+    <div class="cards-grid">
+      <div class="metric-card card-amber">
+        <div class="card-label">Trailing P/E</div>
+        <div class="card-val">57.1x</div>
+        <div class="card-context">Sector median ~28x. Premium reflects hyper-growth AI positioning.</div>
+        <div class="card-signal sig-a">⚠ ELEVATED MULTIPLE</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">Forward P/E</div>
+        <div class="card-val">38.6x</div>
+        <div class="card-context">Compresses to 15.9x on CY2027E EPS of $5.43. Growth-adjusted PEG of 0.98.</div>
+        <div class="card-signal sig-g">✓ GROWTH-JUSTIFIED</div>
+      </div>
+      <div class="metric-card card-amber">
+        <div class="card-label">EV / EBITDA</div>
+        <div class="card-val">50.4x</div>
+        <div class="card-context">Compressed from 54.5x in Q1 FY26. Richly valued vs. broad semis.</div>
+        <div class="card-signal sig-a">⚠ WATCH COMPRESSION</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">PEG Ratio</div>
+        <div class="card-val">0.98</div>
+        <div class="card-context">Sub-1.0 PEG for a 30%+ CAGR company signals potential undervaluation.</div>
+        <div class="card-signal sig-g">✓ FAVORABLE</div>
+      </div>
+      <div class="metric-card card-red">
+        <div class="card-label">Avg Analyst PT</div>
+        <div class="card-val">$121.06</div>
+        <div class="card-context">Current price ~$147 now exceeds consensus PT. Stock has run ahead of targets.</div>
+        <div class="card-signal sig-r">✗ ABOVE CONSENSUS PT</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">52-Wk Performance</div>
+        <div class="card-val">+186%</div>
+        <div class="card-context">Vastly outperformed US Semiconductor industry (+125.8%) and S&amp;P 500 (+36.3%).</div>
+        <div class="card-signal sig-g">✓ MARKET BEATER</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCIAL HEALTH CARDS -->
+  <div class="cards-section">
+    <div class="section-title" style="margin-bottom:12px">Financial Health</div>
+    <div class="cards-grid">
+      <div class="metric-card card-green">
+        <div class="card-label">Non-GAAP Gross Margin</div>
+        <div class="card-val">59.0%</div>
+        <div class="card-context">Q4 FY26. Full-year at 59.5% — expanded 640bps YoY through mix shift to AI ASICs.</div>
+        <div class="card-signal sig-g">✓ EXPANDING</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">Operating Margin (nGAAP)</div>
+        <div class="card-val">35.7%</div>
+        <div class="card-context">Q4 FY26, full-year 35.3%. Strong operating leverage on 42% revenue growth.</div>
+        <div class="card-signal sig-g">✓ HIGH LEVERAGE</div>
+      </div>
+      <div class="metric-card card-amber">
+        <div class="card-label">Net Debt</div>
+        <div class="card-val">-$2.15B</div>
+        <div class="card-context">$4.79B debt / $2.64B cash. D/E ratio 0.33 — manageable, rising from acquisitions.</div>
+        <div class="card-signal sig-a">⚠ MODERATE LEVERAGE</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">Free Cash Flow</div>
+        <div class="card-val">$1.40B</div>
+        <div class="card-context">LTM FCF from $1.75B operating CF minus $354M capex. Strong conversion rate.</div>
+        <div class="card-signal sig-g">✓ SOLID GENERATION</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">Current Ratio</div>
+        <div class="card-val">2.01</div>
+        <div class="card-context">Comfortably above 1.5x threshold — adequate near-term liquidity.</div>
+        <div class="card-signal sig-g">✓ HEALTHY</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">ROE</div>
+        <div class="card-val">19.25%</div>
+        <div class="card-context">ROIC at 7.2% — lower ROIC vs ROE gap reflects goodwill from acquisitions.</div>
+        <div class="card-signal sig-g">✓ ABOVE SECTOR AVG</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROWTH CARDS -->
+  <div class="cards-section">
+    <div class="section-title" style="margin-bottom:12px">Growth Profile</div>
+    <div class="cards-grid">
+      <div class="metric-card card-green">
+        <div class="card-label">FY2026 Revenue Growth</div>
+        <div class="card-val">+42%</div>
+        <div class="card-context">$8.195B — record full-year revenue driven by data center and custom ASIC surge.</div>
+        <div class="card-signal sig-g">✓ RECORD YEAR</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">Custom Silicon Revenue</div>
+        <div class="card-val">$1.5B</div>
+        <div class="card-context">FY26 custom ASIC revenue — scaled from zero; doubled YoY. Guided to double again in FY28.</div>
+        <div class="card-signal sig-g">✓ HYPERGROWTH</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">FY2027 Revenue Guide</div>
+        <div class="card-val">~$11B</div>
+        <div class="card-context">Raised from ~$10B; implies 34%+ YoY growth. Q1 FY27 guided at $2.4B.</div>
+        <div class="card-signal sig-g">✓ GUIDANCE RAISED</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">FY2028 Revenue Target</div>
+        <div class="card-val">~$15B</div>
+        <div class="card-context">~40% YoY. Non-GAAP EPS guided "well over $5." Backed by booked demand.</div>
+        <div class="card-signal sig-g">✓ VISIBILITY STRONG</div>
+      </div>
+      <div class="metric-card card-amber">
+        <div class="card-label">Customer Concentration</div>
+        <div class="card-val">HIGH</div>
+        <div class="card-context">Amazon, Google among key hyperscaler customers. Dependence is a watch item.</div>
+        <div class="card-signal sig-a">⚠ CONCENTRATION RISK</div>
+      </div>
+      <div class="metric-card card-green">
+        <div class="card-label">EPS Growth (FY26 nGAAP)</div>
+        <div class="card-val">+81%</div>
+        <div class="card-context">$2.84 non-GAAP EPS vs $1.57 prior year — nearly double the rate of revenue growth.</div>
+        <div class="card-signal sig-g">✓ OPERATING LEVERAGE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE BREAKDOWN -->
+  <div class="score-section">
+    <div class="section-title">Risk Score Breakdown</div>
+    <div class="score-rows">
+      <div class="score-row">
+        <div>
+          <div class="score-name">Valuation Risk</div>
+          <div class="score-weight">35% weight</div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:68%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+        </div>
+        <div class="score-num" style="color:#f59e0b">24/35</div>
+      </div>
+      <div class="score-row">
+        <div>
+          <div class="score-name">Financial Health Risk</div>
+          <div class="score-weight">35% weight</div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:43%;background:linear-gradient(90deg,#22c55e,#f59e0b)"></div>
+        </div>
+        <div class="score-num" style="color:#22c55e">15/35</div>
+      </div>
+      <div class="score-row">
+        <div>
+          <div class="score-name">Growth &amp; Execution Risk</div>
+          <div class="score-weight">30% weight</div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:63%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+        </div>
+        <div class="score-num" style="color:#f59e0b">19/30</div>
+      </div>
+      <div class="score-row" style="border-top:1px solid var(--border);padding-top:10px">
+        <div>
+          <div class="score-name" style="font-weight:700;color:#fff">COMPOSITE SCORE</div>
+          <div class="score-weight">Higher = More Risk</div>
+        </div>
+        <div class="bar-track" style="height:12px">
+          <div class="bar-fill" style="width:58%;background:linear-gradient(90deg,#22c55e,#f59e0b,#ef4444)"></div>
+        </div>
+        <div class="score-num" style="color:#f59e0b;font-size:16px">58/100</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE BREAK LABEL -->
+<div class="page-break">
+  <div class="pb-label">──── PAGE 2 OF 2 · TREND ANALYSIS & INVESTMENT OUTLOOK ────</div>
+</div>
+
+<!-- ═══════════════════════════════════ PAGE 2 ═══════════════════════════════════ -->
+<div class="page">
+
+  <!-- QUARTERLY TREND TABLE -->
+  <div class="section-header">Quarterly Performance Trend</div>
+  <table class="qtable">
+    <thead>
+      <tr>
+        <th>Quarter</th>
+        <th>Revenue</th>
+        <th>vs Est.</th>
+        <th>Non-GAAP EPS</th>
+        <th>vs Est.</th>
+        <th>DC Revenue</th>
+        <th>DC % Total</th>
+        <th>nGAAP GM</th>
+        <th>YoY Rev Δ</th>
+        <th>Signal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:#fff;font-weight:600">Q4 FY24</td>
+        <td>$1.427B</td>
+        <td class="beat">BEAT</td>
+        <td>$0.46</td>
+        <td>—</td>
+        <td>~$0.82B</td>
+        <td>~57%</td>
+        <td>63.9%</td>
+        <td class="miss">+1%</td>
+        <td><span class="inline-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">FLAT</span></td>
+      </tr>
+      <tr>
+        <td style="color:#fff;font-weight:600">Q1 FY25</td>
+        <td>$1.161B</td>
+        <td class="beat">BEAT</td>
+        <td>$0.41</td>
+        <td class="beat">+5%</td>
+        <td>—</td>
+        <td>~60%</td>
+        <td>62.7%</td>
+        <td class="miss">-9%</td>
+        <td><span class="inline-badge" style="background:rgba(239,68,68,.15);color:#ef4444">WEAK</span></td>
+      </tr>
+      <tr>
+        <td style="color:#fff;font-weight:600">Q4 FY25</td>
+        <td>$1.817B</td>
+        <td class="beat">+$17M</td>
+        <td>$0.60</td>
+        <td class="beat">BEAT</td>
+        <td>~$1.08B</td>
+        <td>~59%</td>
+        <td>60.1%</td>
+        <td class="beat">+27%</td>
+        <td><span class="inline-badge" style="background:rgba(34,197,94,.15);color:#22c55e">STRONG</span></td>
+      </tr>
+      <tr>
+        <td style="color:#fff;font-weight:600">Q2 FY26</td>
+        <td>$1.874B</td>
+        <td class="beat">BEAT</td>
+        <td>$0.62</td>
+        <td class="beat">BEAT</td>
+        <td>~$1.18B</td>
+        <td>~63%</td>
+        <td>58.5%</td>
+        <td class="beat">+37%</td>
+        <td><span class="inline-badge" style="background:rgba(34,197,94,.15);color:#22c55e">BEAT</span></td>
+      </tr>
+      <tr>
+        <td style="color:#fff;font-weight:600">Q3 FY26</td>
+        <td>$2.075B</td>
+        <td class="beat">BEAT</td>
+        <td>$0.76</td>
+        <td class="beat">BEAT</td>
+        <td>$1.518B</td>
+        <td>73%</td>
+        <td>59.1%</td>
+        <td class="beat">+37%</td>
+        <td><span class="inline-badge" style="background:rgba(34,197,94,.15);color:#22c55e">BEAT</span></td>
+      </tr>
+      <tr style="background:rgba(99,102,241,.06)">
+        <td style="color:#a5b4fc;font-weight:700">Q4 FY26 ★</td>
+        <td style="color:#fff">$2.219B</td>
+        <td class="beat">+$19M</td>
+        <td style="color:#fff">$0.80</td>
+        <td class="beat">+12.7%</td>
+        <td style="color:#fff">$1.650B</td>
+        <td style="color:#fff">74%</td>
+        <td style="color:#fff">59.0%</td>
+        <td class="beat">+22%</td>
+        <td><span class="inline-badge" style="background:rgba(99,102,241,.25);color:#a5b4fc">RECORD</span></td>
+      </tr>
+      <tr>
+        <td style="color:#64748b;font-style:italic">Q1 FY27E</td>
+        <td style="color:#64748b">$2.4B ±5%</td>
+        <td style="color:#64748b">GUIDED</td>
+        <td style="color:#64748b">~$0.72E</td>
+        <td style="color:#64748b">EST</td>
+        <td style="color:#64748b">~$1.9B+</td>
+        <td style="color:#64748b">~78%E</td>
+        <td style="color:#64748b">~59.0%</td>
+        <td style="color:#64748b">+28%E</td>
+        <td><span class="inline-badge" style="background:rgba(99,102,241,.1);color:#64748b">FCAST</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- EARNINGS / DELIVERY UPDATE -->
+  <div class="earnings-box">
+    <div class="section-header" style="margin-bottom:0;border:none">Latest Earnings & Delivery Update · Q4 FY2026 (Mar 5, 2026)</div>
+    <div class="earnings-grid">
+      <div class="e-item">
+        <div class="e-label">Revenue</div>
+        <div class="e-val">$2.219B</div>
+        <div class="e-vs" style="color:#22c55e">▲ +$19M vs guide mid</div>
+      </div>
+      <div class="e-item">
+        <div class="e-label">Non-GAAP EPS</div>
+        <div class="e-val">$0.80</div>
+        <div class="e-vs" style="color:#22c55e">▲ Beat $0.71 est (+12.7%)</div>
+      </div>
+      <div class="e-item">
+        <div class="e-label">GAAP EPS</div>
+        <div class="e-val">$0.46</div>
+        <div class="e-vs" style="color:#22c55e">▲ vs $0.23 Q4 FY25</div>
+      </div>
+      <div class="e-item">
+        <div class="e-label">Op Cash Flow</div>
+        <div class="e-val">$373.7M</div>
+        <div class="e-vs" style="color:#64748b">Q4 standalone</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);padding-top:12px">
+      <strong style="color:var(--text)">Key Delivery Highlights:</strong> Data center hit record $1.65B in Q4 — 9% sequential growth. Management raised FY27 guide to <strong style="color:var(--green)">~$11B</strong> and set FY28 target at <strong style="color:var(--green)">~$15B (~40% YoY)</strong>, with non-GAAP EPS well over $5. Custom ASIC business doubled YoY to $1.5B; guided to double again in FY28. Completed acquisitions of <strong style="color:#a5b4fc">Celestial AI</strong> and <strong style="color:#a5b4fc">XConn</strong> for silicon photonics/CXL. 1.6T interconnect in production; 2nm coherent DSP announced. Next earnings: <strong style="color:var(--text)">May 28, 2026</strong>.
+    </div>
+  </div>
+
+  <!-- CATALYSTS vs RISKS -->
+  <div class="dual-col">
+    <div class="col-card">
+      <div class="col-title cat-title">
+        <span>▲</span> CATALYSTS
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🚀</div>
+        <div>
+          <div class="item-text">AI Infrastructure Supercycle</div>
+          <div class="item-sub">Hyperscaler capex accelerating; data center now 74% of revenue with 40%+ YoY growth guided into FY28.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🔮</div>
+        <div>
+          <div class="item-text">Custom ASIC / XPU Dominance</div>
+          <div class="item-sub">50+ ASIC pipeline across 10+ customers; custom business on path to &gt;$2B/yr by FY29 from NIC and CXL.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🌐</div>
+        <div>
+          <div class="item-text">Silicon Photonics Leadership</div>
+          <div class="item-sub">Celestial AI acquisition + Nvidia $2B silicon photonics deal cements optical interconnect moat.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">📶</div>
+        <div>
+          <div class="item-text">1.6T + 2nm Interconnect Roadmap</div>
+          <div class="item-sub">First-to-market in 1.6T production; 2nm DSP in sampling — meaningful tech-cycle advantage.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🤝</div>
+        <div>
+          <div class="item-text">Google / Amazon / AWS Deepening</div>
+          <div class="item-sub">Reports of new co-design agreements for custom AI chips with Alphabet; Amazon Trainium3/4 partial role.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">💹</div>
+        <div>
+          <div class="item-text">Operating Leverage Flywheel</div>
+          <div class="item-sub">EPS growing 2× faster than revenue (+81% FY26). Margin expansion guided to continue through FY28.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-card">
+      <div class="col-title risk-title">
+        <span>▼</span> RISKS
+      </div>
+      <div class="item-row">
+        <div class="item-icon">⚠️</div>
+        <div>
+          <div class="item-text">Stock Has Outrun Analyst Targets</div>
+          <div class="item-sub">At ~$147, MRVL trades above consensus PT of ~$121-$126. Near-term upside from Wall Street limited.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🏦</div>
+        <div>
+          <div class="item-text">Hyperscaler Capex Concentration</div>
+          <div class="item-sub">Heavy reliance on Amazon, Google, and a handful of cloud titans — any budget re-prioritization hits hard.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">📉</div>
+        <div>
+          <div class="item-text">High Valuation Leaves No Margin of Safety</div>
+          <div class="item-sub">Trailing P/E 57x; EV/EBITDA 50x. Any miss on guidance could trigger sharp de-rating (beta 1.82).</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🌍</div>
+        <div>
+          <div class="item-text">China / Export Control Risk</div>
+          <div class="item-sub">Geopolitical tensions and semiconductor export restrictions could restrict Taiwan/China supply chain access.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">⚔️</div>
+        <div>
+          <div class="item-text">Competitive Intensity (Broadcom)</div>
+          <div class="item-sub">Broadcom (AVGO) competes directly in custom silicon and networking. Intel, Nvidia also moving into custom ASIC.</div>
+        </div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">💸</div>
+        <div>
+          <div class="item-text">M&A Integration + Goodwill Drag</div>
+          <div class="item-sub">Celestial AI + XConn acquisitions increase integration risk and suppress ROIC (7.2% vs ROE 19.25%).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM LINE -->
+  <div class="bottom-line">
+    <div class="section-header">Bottom Line</div>
+    <div class="verdict-grid">
+      <div class="verdict-text">
+        <h3>Compelling AI Infrastructure Story — But Priced for Perfection</h3>
+        <p>Marvell has executed a remarkable transformation into an AI-native data infrastructure semiconductor company. FY26 was a breakout year: record $8.2B revenue (+42%), non-GAAP EPS nearly doubling, and data center becoming 74% of business. The FY27–28 growth roadmap (~$11B → $15B) is backed by visible custom ASIC demand, deepening hyperscaler relationships, and first-mover technology advantages in 1.6T optical interconnect and 2nm DSP. The risk, however, is in the price. At ~$147, MRVL now trades above most analyst targets and at 57x trailing earnings. The bull case requires flawless execution against an aggressive multi-year guide, with no slowdown in hyperscaler capex. A risk score of <strong>58/100 (Moderate)</strong> reflects genuine AI tailwinds balanced against elevated valuation, customer concentration, and a high-beta profile that punishes any miss severely.</p>
+        <div class="verdict-badge">CONDITIONAL BUY · ACCUMULATE ON PULLBACKS</div>
+      </div>
+      <div class="rating-bar-wrap">
+        <div class="rating-bar-label">Analyst Rating Spectrum</div>
+        <div class="rating-track">
+          <div class="r-seg r-sell">SELL</div>
+          <div class="r-seg r-reduce">REDUCE</div>
+          <div class="r-seg r-hold">HOLD</div>
+          <div class="r-seg r-buy active">BUY</div>
+          <div class="r-seg r-strong">STR BUY</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px">47% Strong Buy · 34% Buy · 19% Hold · 0% Sell</div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--surface2);border-radius:8px;padding:10px">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">AVG PRICE TARGET</div>
+            <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:#fff">$121–$126</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:10px">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">HIGH TARGET</div>
+            <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green)">$172</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:10px">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">LOW TARGET</div>
+            <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red)">$85.85</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:10px">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted)">NEXT EARNINGS</div>
+            <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)">May 28, 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ⚠ This report is for informational purposes only and does not constitute investment advice. Data sourced from SEC filings, Marvell IR, TipRanks, StockAnalysis, TradingView, and analyst reports as of Apr 21, 2026. Past performance is not indicative of future results. All figures use non-GAAP where noted. Not a registered investment adviser.
+  </div>
+
+</div>
+</div>
+
+<!-- EXPORT BUTTON -->
+<button class="export-btn" onclick="copyReport()">
+  📋 Copy Report to Clipboard
+</button>
+
+<script>
+function copyReport() {
+  const lines = [
+    "MRVL RISK SCORE REPORT — Marvell Technology, Inc.",
+    "Generated: April 21, 2026 | NASDAQ: MRVL",
+    "=".repeat(60),
+    "",
+    "CURRENT PRICE: $147.84 (+4.74% today) | +185.96% 52-week",
+    "52-Week Range: $48.09 – $115.66* | Mkt Cap: $122.2B | Beta: 1.82",
+    "",
+    "OVERALL RISK SCORE: 58/100 — MODERATE RISK",
+    "  • Valuation Risk:          24/35 (35% weight)",
+    "  • Financial Health Risk:   15/35 (35% weight)",
+    "  • Growth & Execution Risk: 19/30 (30% weight)",
+    "",
+    "─".repeat(60),
+    "KEY METRICS",
+    "─".repeat(60),
+    "FY2026 Revenue:        $8.195B record (+42% YoY)      ✓ BEAT",
+    "Q4 Non-GAAP EPS:       $0.80 vs $0.71 est (+12.7%)   ✓ BEAT",
+    "Non-GAAP Gross Margin: 59.0% Q4 / 59.5% FY26         ✓ EXPANDING",
+    "FY27 Revenue Outlook:  ~$11B (>30% YoY)              ✓ RAISED",
+    "FY28 Revenue Target:   ~$15B (~40% YoY)              ✓ VISIBILITY",
+    "Forward P/E:           38.6x (Trailing 57.1x)        ⚠ ELEVATED",
+    "EV/EBITDA:             50.4x                         ⚠ RICH",
+    "PEG Ratio:             0.98                          ✓ FAVORABLE",
+    "Net Debt:              -$2.15B (D/E 0.33)            ⚠ MODERATE",
+    "FCF (LTM):             $1.40B                        ✓ SOLID",
+    "ROE:                   19.25%                        ✓ STRONG",
+    "Avg Analyst PT:        $121-$126 (ABOVE current)     ✗ EXCEEDED",
+    "",
+    "─".repeat(60),
+    "QUARTERLY TREND",
+    "─".repeat(60),
+    "Q4 FY24: $1.427B rev | $0.46 EPS | +1% YoY",
+    "Q4 FY25: $1.817B rev | $0.60 EPS | +27% YoY",
+    "Q3 FY26: $2.075B rev | $0.76 EPS | +37% YoY — BEAT",
+    "Q4 FY26: $2.219B rev | $0.80 EPS | +22% YoY — RECORD ★",
+    "Q1 FY27E: ~$2.4B rev | ~$0.72 EPS | ~+28% YoY — GUIDED",
+    "",
+    "─".repeat(60),
+    "CATALYSTS",
+    "─".repeat(60),
+    "▲ AI Infrastructure supercycle; data center 74% of revenue",
+    "▲ Custom ASIC pipeline: 50+ programs, 10+ customers",
+    "▲ Silicon photonics: Celestial AI acq + Nvidia $2B deal",
+    "▲ 1.6T interconnect in production; 2nm DSP announced",
+    "▲ Deepening Google/Amazon relationships (new chip co-designs)",
+    "▲ EPS growing 2x faster than revenue (+81% FY26)",
+    "",
+    "─".repeat(60),
+    "RISKS",
+    "─".repeat(60),
+    "▼ Stock exceeds analyst consensus PT (~$121-$126 avg)",
+    "▼ Hyperscaler capex concentration (Amazon, Google)",
+    "▼ High valuation (57x trailing P/E) — no margin of safety",
+    "▼ China/export control risk on supply chain",
+    "▼ Broadcom/Nvidia competitive pressure in custom silicon",
+    "▼ M&A integration risk (Celestial AI, XConn); ROIC only 7.2%",
+    "",
+    "─".repeat(60),
+    "BOTTOM LINE",
+    "─".repeat(60),
+    "VERDICT: CONDITIONAL BUY — Accumulate on Pullbacks",
+    "ANALYST CONSENSUS: Strong Buy (47% Str Buy | 34% Buy | 19% Hold)",
+    "PRICE TARGETS: Avg $121-$126 | High $172 | Low $85.85",
+    "NEXT EARNINGS: May 28, 2026",
+    "",
+    "Marvell has executed a remarkable AI transformation: record",
+    "$8.2B FY26 revenue, FY27-28 roadmap to $11B-$15B backed by",
+    "visible custom ASIC demand. Risk score 58/100 reflects genuine",
+    "AI tailwinds vs. elevated valuation and high-beta profile.",
+    "",
+    "─".repeat(60),
+    "⚠ For informational purposes only. Not investment advice.",
+    "Data as of Apr 21, 2026. Not a registered investment adviser.",
+  ].join("\n");
+
+  navigator.clipboard.writeText(lines).then(() => {
+    const btn = document.querySelector('.export-btn');
+    btn.textContent = '✓ Copied to Clipboard!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy Report to Clipboard'; }, 2500);
+  });
+}
+</script>
+</body>
+</html>
