@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MSFT · GOOGL · AMZN — Risk Score Report</title>
@@ -190,14 +190,34 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 }
 
 .est{color:var(--amber);font-size:10px}
+  /* ── shared nav ── */
+.site-nav{display:flex;justify-content:space-between;align-items:center;padding:12px 28px;border-bottom:1px solid var(--border);background:rgba(8,9,13,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+.sn-brand{display:flex;align-items:center;gap:8px;text-decoration:none}
+.sn-logo{width:26px;height:26px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#fff}
+.sn-title{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff}
+.sn-links{display:flex;gap:2px}
+.sn-link{font-family:var(--mono);font-size:9px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:4px;transition:.15s}
+.sn-link:hover,.sn-link.active{background:rgba(108,99,255,.15);color:var(--accent)}
+@media(max-width:600px){.sn-links{display:none}}
 </style>
 </head>
 <body>
 
-<div class="export-btns">
-  <button class="exp-btn exp-json" onclick="copyJSON()">📋 Copy JSON</button>
-  <button class="exp-btn exp-pdf" onclick="window.print()">🖨 Print PDF</button>
-</div>
+
+<!-- SHARED NAV -->
+<nav class="site-nav">
+  <a class="sn-brand" href="index.html">
+    <div class="sn-logo">S</div>
+    <span class="sn-title">STOCK RISK TRACKER</span>
+  </a>
+  <div class="sn-links">
+    <a class="sn-link" href="index.html">🏠 Home</a>
+    <a class="sn-link active" href="Stock.html">📋 MSFT·GOOGL·AMZN</a>
+    <a class="sn-link" href="sectors.html">📊 Sectors</a>
+    <a class="sn-link" href="MRVL.html">MRVL</a>
+    <a class="sn-link" href="https://github.com/Sonyboy30/Claude-Stock-Tracker" target="_blank">⬡ GitHub</a>
+  </div>
+</nav>
 
 <div class="tabs" id="tabs">
   <div class="tab active" onclick="switchTab('msft',this)">MSFT · Microsoft</div>
@@ -1140,49 +1160,71 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 </div>
 
 <script>
+// Read tab from URL param (?tab=msft) or localStorage
+function getInitialTab() {
+  const params = new URLSearchParams(window.location.search);
+  const urlTab = params.get('tab');
+  if (urlTab) return urlTab;
+  return localStorage.getItem('activeTab') || 'msft';
+}
+
 function switchTab(id, el) {
-  document.querySelectorAll('.company-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
-  el.classList.add('active');
+  document.querySelectorAll('.company-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const section = document.getElementById('sec-' + id);
+  if (section) section.classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    // activate tab button programmatically
+    document.querySelectorAll('.tab').forEach(t => {
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(`'${id}'`)) {
+        t.classList.add('active');
+      }
+    });
+  }
+  localStorage.setItem('activeTab', id);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// Auto-activate tab on load
+window.addEventListener('DOMContentLoaded', () => {
+  const tab = getInitialTab();
+  switchTab(tab, null);
+});
+
+// JSON export data
 const REPORT_DATA = {
-  generated: "2026-04-25",
+  generated: new Date().toISOString().slice(0,10),
   companies: {
     MSFT: {
-      name: "Microsoft Corporation",
-      price: 415.75, priceChange: 2.04, mktCap: "3.08T",
-      riskScore: 38, riskCategory: "MODERATE RISK",
-      scoreBreakdown: { valuation: {score:13,max:35}, financialHealth:{score:11,max:35}, growth:{score:14,max:30} },
-      kpis: { pe:26.5, evEbitda:18.4, revGrowthYoY:18, fcb:"77.4B", debtEquity:0.32, shortInterest:1.09 },
-      verdict: "CONDITIONAL BUY — High quality, attractive valuation vs history",
-      analystConsensus: "STRONG BUY", avgPriceTarget: 583.21, bearPT: 380, bullPT: 650,
-      latestQuarter: "Q1 FY26", latestRev: "77.7B", latestEPS: 3.72, epsEst: 3.41, beat: true,
-      nextEarnings: "2026-04-29"
+      name:"Microsoft Corporation", price:415.75, mktCap:"3.08T",
+      riskScore:38, riskCategory:"MODERATE RISK",
+      scoreBreakdown:{valuation:{score:13,max:35},financialHealth:{score:11,max:35},growth:{score:14,max:30}},
+      kpis:{pe:26.5,evEbitda:18.4,revGrowthYoY:18,fcf:"77.4B",debtEquity:0.32,shortInterest:1.09},
+      verdict:"CONDITIONAL BUY — High quality, attractive valuation vs history",
+      analystConsensus:"STRONG BUY", avgPriceTarget:583.21, bearPT:380, bullPT:650,
+      latestQuarter:"Q1 FY26", latestRev:"77.7B", latestEPS:3.72, epsEst:3.41, beat:true,
+      nextEarnings:"2026-04-29"
     },
     GOOGL: {
-      name: "Alphabet Inc.",
-      price: 344.12, priceChange: 1.71, mktCap: "4.08T",
-      riskScore: 45, riskCategory: "MODERATE RISK",
-      scoreBreakdown: { valuation:{score:20,max:35}, financialHealth:{score:9,max:35}, growth:{score:16,max:30} },
-      kpis: { pe:31.6, evEbitda:27.1, revGrowthYoY:15, fcb:"72B◈", debtEquity:0.16, shortInterest:0.66 },
-      verdict: "BUY — Exceptional execution, watch DOJ & capex",
-      analystConsensus: "STRONG BUY", avgPriceTarget: 357.61, bearPT: 260, bullPT: 430,
-      latestQuarter: "Q4 2025", latestRev: "113.9B", latestEPS: 2.82, epsEst: 2.57, beat: true,
-      nextEarnings: "2026-04-29"
+      name:"Alphabet Inc.", price:344.12, mktCap:"4.08T",
+      riskScore:45, riskCategory:"MODERATE RISK",
+      scoreBreakdown:{valuation:{score:20,max:35},financialHealth:{score:9,max:35},growth:{score:16,max:30}},
+      kpis:{pe:31.6,evEbitda:27.1,revGrowthYoY:15,fcf:"72B",debtEquity:0.16,shortInterest:0.66},
+      verdict:"BUY — Exceptional execution, watch DOJ & capex",
+      analystConsensus:"STRONG BUY", avgPriceTarget:357.61, bearPT:260, bullPT:430,
+      latestQuarter:"Q4 2025", latestRev:"113.9B", latestEPS:2.82, epsEst:2.57, beat:true,
+      nextEarnings:"2026-04-29"
     },
     AMZN: {
-      name: "Amazon.com Inc.",
-      price: 255.36, priceChange: 0.23, mktCap: "2.75T",
-      riskScore: 52, riskCategory: "MODERATE-HIGH RISK",
-      scoreBreakdown: { valuation:{score:19,max:35}, financialHealth:{score:16,max:35}, growth:{score:17,max:30} },
-      kpis: { pe:35.6, evEbitda:19.2, revGrowthYoY:12.4, fcb:"14.9B Q4", debtEquity:0.43, shortInterest:0.81 },
-      verdict: "BUY (2-3yr horizon) — AWS re-accelerating, capex cycle risk",
-      analystConsensus: "STRONG BUY", avgPriceTarget: 284.81, bearPT: 175, bullPT: 360,
-      latestQuarter: "Q4 2025", latestRev: "213.4B", latestEPS: 1.95, epsEst: 1.97, beat: false,
-      nextEarnings: "2026-04-29"
+      name:"Amazon.com Inc.", price:255.36, mktCap:"2.75T",
+      riskScore:52, riskCategory:"MODERATE-HIGH RISK",
+      scoreBreakdown:{valuation:{score:19,max:35},financialHealth:{score:16,max:35},growth:{score:17,max:30}},
+      kpis:{pe:35.6,evEbitda:19.2,revGrowthYoY:12.4,fcf:"14.9B Q4",debtEquity:0.43,shortInterest:0.81},
+      verdict:"BUY (2-3yr horizon) — AWS re-accelerating, capex cycle risk",
+      analystConsensus:"STRONG BUY", avgPriceTarget:284.81, bearPT:175, bullPT:360,
+      latestQuarter:"Q4 2025", latestRev:"213.4B", latestEPS:1.95, epsEst:1.97, beat:false,
+      nextEarnings:"2026-04-29"
     }
   }
 };
@@ -1190,8 +1232,9 @@ const REPORT_DATA = {
 function copyJSON() {
   navigator.clipboard.writeText(JSON.stringify(REPORT_DATA, null, 2)).then(() => {
     const btn = document.querySelector('.exp-json');
+    const orig = btn.innerHTML;
     btn.textContent = '✓ Copied!';
-    setTimeout(()=>{ btn.innerHTML='📋 Copy JSON'; }, 2500);
+    setTimeout(() => { btn.innerHTML = orig; }, 2500);
   });
 }
 </script>
