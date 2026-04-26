@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock Risk Tracker — Sonyboy30</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08090d;--surf:#0f1117;--surf2:#13151e;--border:#1e2130;
+  --accent:#6c63ff;--green:#00d084;--red:#ff4d6d;--amber:#ffb547;
+  --text:#dde1f0;--muted:#5a6182;--dim:#1a1d2e;
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.fade-up{animation:fadeUp .55s both}
+.d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.19s}
+.d4{animation-delay:.26s}.d5{animation-delay:.33s}.d6{animation-delay:.40s}
+.d7{animation-delay:.47s}.d8{animation-delay:.54s}
+
+/* ── TICKER TAPE ── */
+.ticker-tape{background:var(--surf);border-bottom:1px solid var(--border);padding:7px 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-flex;gap:0;animation:ticker 45s linear infinite}
+.tick-item{font-family:var(--mono);font-size:11px;padding:0 28px;display:flex;align-items:center;gap:8px;border-right:1px solid var(--border)}
+.tick-sym{color:#fff;font-weight:700}
+.tick-price{color:var(--muted)}
+.tick-chg{font-size:10px;padding:1px 5px;border-radius:3px}
+.up{background:rgba(0,208,132,.15);color:var(--green)}
+.dn{background:rgba(255,77,109,.15);color:var(--red)}
+
+/* ── NAV ── */
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:#fff}
+.nav-title{font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;letter-spacing:.5px}
+.nav-sub{font-size:11px;color:var(--muted)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-date{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.nav-status{font-family:var(--mono);font-size:10px;color:var(--green)}
+
+/* ── HERO ── */
+.hero{padding:60px 40px 44px;max-width:1200px;margin:0 auto}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+.hero-h1{font-size:42px;font-weight:700;color:#fff;line-height:1.18;margin-bottom:16px}
+.hero-h1 span{color:var(--accent)}
+.hero-sub{font-size:16px;color:var(--muted);max-width:560px;line-height:1.7;margin-bottom:32px}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap}
+.h-stat{display:flex;flex-direction:column;gap:3px}
+.h-stat-val{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff}
+.h-stat-lbl{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+
+/* ── SECTION HEADER ── */
+.sec-wrap{max-width:1200px;margin:0 auto;padding:0 40px 60px}
+.sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.sec-title{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+.sec-badge{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:4px;background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.25)}
+
+/* ── MARKET SUMMARY BAR ── */
+.mkt-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:48px}
+.mkt-tile{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.mt-left{display:flex;flex-direction:column;gap:3px}
+.mt-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.mt-val{font-family:var(--mono);font-size:18px;font-weight:700;color:#fff}
+.mt-chg{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px}
+
+/* ── STOCK CARDS ── */
+.stocks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
+.stock-card{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;text-decoration:none;display:block;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
+.stock-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 32px rgba(108,99,255,.18)}
+.stock-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc-blue::before{background:linear-gradient(90deg,#00bcf0,#6c63ff)}
+.sc-green::before{background:linear-gradient(90deg,#00d084,#4ade80)}
+.sc-purple::before{background:linear-gradient(90deg,#a855f7,#6c63ff)}
+.sc-red::before{background:linear-gradient(90deg,#ff4d6d,#f97316)}
+.sc-orange::before{background:linear-gradient(90deg,#ff9900,#ffb547)}
+.sc-teal::before{background:linear-gradient(90deg,#06b6d4,#00d084)}
+
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.sc-ticker-badge{font-family:var(--mono);font-size:13px;font-weight:700;padding:5px 12px;border-radius:6px}
+.badge-msft{background:rgba(0,188,240,.12);color:#00bcf0;border:1px solid rgba(0,188,240,.2)}
+.badge-googl{background:rgba(66,133,244,.12);color:#4285f4;border:1px solid rgba(66,133,244,.2)}
+.badge-amzn{background:rgba(255,153,0,.12);color:#ff9900;border:1px solid rgba(255,153,0,.2)}
+.badge-nvda{background:rgba(118,185,0,.12);color:#76b900;border:1px solid rgba(118,185,0,.2)}
+.badge-tsla{background:rgba(204,0,0,.12);color:#ff4d4d;border:1px solid rgba(204,0,0,.2)}
+.badge-aapl{background:rgba(200,200,200,.1);color:#d1d5db;border:1px solid rgba(200,200,200,.2)}
+.badge-meta{background:rgba(24,119,242,.12);color:#1877f2;border:1px solid rgba(24,119,242,.2)}
+.badge-mrvl{background:rgba(108,99,255,.12);color:#6c63ff;border:1px solid rgba(108,99,255,.2)}
+
+.sc-risk-score{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.risk-num{font-family:var(--mono);font-size:22px;font-weight:700}
+.risk-lbl{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+
+.sc-name{font-size:15px;font-weight:600;color:#fff;margin-bottom:3px}
+.sc-sector{font-size:11px;color:var(--muted);margin-bottom:14px}
+
+.sc-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+.sc-price{font-family:var(--mono);font-size:24px;font-weight:700;color:#fff}
+.sc-chg{font-family:var(--mono);font-size:11px;padding:3px 7px;border-radius:4px}
+
+.sc-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.sc-metric{background:var(--dim);border-radius:7px;padding:8px 10px}
+.scm-label{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.scm-val{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff}
+
+.sc-bar-wrap{margin-bottom:14px}
+.sc-bar-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sc-bar-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase}
+.sc-bar-val{font-family:var(--mono);font-size:9px;font-weight:600}
+.sc-bar-track{background:var(--dim);height:6px;border-radius:100px;overflow:hidden}
+.sc-bar-fill{height:100%;border-radius:100px}
+
+.sc-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)}
+.sc-rating{font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px}
+.rating-sb{background:rgba(0,208,132,.15);color:var(--green);border:1px solid rgba(0,208,132,.2)}
+.rating-b{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
+.rating-h{background:rgba(255,181,71,.15);color:var(--amber);border:1px solid rgba(255,181,71,.2)}
+.sc-arrow{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;transition:color .2s,gap .2s}
+.stock-card:hover .sc-arrow{color:var(--accent);gap:8px}
+
+/* ── ADD CARD ── */
+.add-card{background:var(--surf);border:2px dashed var(--border);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:280px;cursor:pointer;transition:border-color .2s}
+.add-card:hover{border-color:var(--accent)}
+.add-icon{width:48px;height:48px;border-radius:12px;background:var(--dim);display:flex;align-items:center;justify-content:center;font-size:22px}
+.add-title{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
+.add-sub{font-size:11px;color:var(--muted);opacity:.6;text-align:center}
+
+/* ── WATCHLIST TABLE ── */
+.watch-table{width:100%;border-collapse:collapse;margin-bottom:48px}
+.watch-table th{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:10px 14px;background:var(--surf2);text-align:left;border-bottom:1px solid var(--border)}
+.watch-table th:first-child{border-radius:8px 0 0 0}
+.watch-table th:last-child{border-radius:0 8px 0 0}
+.watch-table td{font-family:var(--mono);font-size:12px;padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.watch-table tr:hover td{background:rgba(255,255,255,.02)}
+.watch-table tr:last-child td{border:none}
+.wt-ticker{font-weight:700;color:#fff}
+.wt-name{font-size:11px;color:var(--muted)}
+.mini-bar{width:80px;height:5px;background:var(--dim);border-radius:100px;overflow:hidden;display:inline-block}
+.mini-fill{height:100%;border-radius:100px}
+.wt-link{color:var(--accent);text-decoration:none;font-size:10px;padding:4px 10px;border:1px solid rgba(108,99,255,.3);border-radius:4px;transition:.2s}
+.wt-link:hover{background:rgba(108,99,255,.15)}
+
+/* ── FOOTER ── */
+footer{background:var(--surf);border-top:1px solid var(--border);padding:28px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-left{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.7}
+.footer-right{display:flex;gap:16px}
+.footer-link{font-family:var(--mono);font-size:10px;color:var(--muted);text-decoration:none}
+.footer-link:hover{color:var(--text)}
+
+/* ── HOW TO ADD ── */
+.howto{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:48px}
+.howto-title{font-family:var(--mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.howto-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.howto-step{display:flex;flex-direction:column;gap:8px}
+.step-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--dim)}
+.step-title{font-size:13px;font-weight:600;color:#fff}
+.step-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .stocks-grid{grid-template-columns:repeat(2,1fr)}
+  .mkt-bar{grid-template-columns:repeat(2,1fr)}
+  .howto-steps{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+  .stocks-grid{grid-template-columns:1fr}
+  .mkt-bar{grid-template-columns:1fr 1fr}
+  nav,.hero,.sec-wrap{padding-left:16px;padding-right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER TAPE -->
+<div class="ticker-tape">
+  <div class="ticker-inner" id="tape">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">S</div>
+    <div>
+      <div class="nav-title">STOCK RISK TRACKER</div>
+      <div class="nav-sub">by Sonyboy30 · Powered by Claude</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-dot"></div>
+    <span class="nav-status">LIVE DATA</span>
+    <span class="nav-date" id="nav-date"></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero fade-up">
+  <div class="hero-eyebrow">Equity Risk Intelligence Dashboard</div>
+  <h1 class="hero-h1">Know the Risk.<br>Make the <span>Right Call.</span></h1>
+  <p class="hero-sub">Deep-dive risk score reports for individual stocks — covering valuation, financial health, growth execution, and analyst consensus. Updated with live web data.</p>
+  <div class="hero-stats">
+    <div class="h-stat"><span class="h-stat-val" id="stock-count">8</span><span class="h-stat-lbl">Stocks Covered</span></div>
+    <div class="h-stat"><span class="h-stat-val">3</span><span class="h-stat-lbl">Report Bundles</span></div>
+    <div class="h-stat"><span class="h-stat-val">Apr 25</span><span class="h-stat-lbl">Last Updated</span></div>
+    <div class="h-stat"><span class="h-stat-val" style="color:var(--green)">7/8</span><span class="h-stat-lbl">Strong Buy Consensus</span></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="sec-wrap">
+
+  <!-- MARKET SUMMARY -->
+  <div class="sec-header fade-up d1">
+    <span class="sec-title">Market Snapshot · Apr 25, 2026</span>
+    <span class="sec-badge">Real-time estimates</span>
+  </div>
+  <div class="mkt-bar fade-up d1">
+    <div class="mkt-tile">
+      <div class="mt-left"><span class="mt-label">S&P 500</span><span class="mt-val">5,693</span></div>
+      <span class="mt-chg up">▲ +0.74%</span>
+    </div>
+    <div class="mkt-tile">
+      <div class="mt-left"><span class="mt-label">NASDAQ</span><span class="mt-val">18,082</span></div>
+      <span class="mt-chg up">▲ +1.12%</span>
+    </div>
+    <div class="mkt-tile">
+      <div class="mt-left"><span class="mt-label">VIX</span><span class="mt-val">26.4</span></div>
+      <span class="mt-chg dn">▼ -3.8%</span>
+    </div>
+    <div class="mkt-tile">
+      <div class="mt-left"><span class="mt-label">10-Yr Yield</span><span class="mt-val">4.31%</span></div>
+      <span class="mt-chg dn">▼ -2bp</span>
+    </div>
+  </div>
+
+  <!-- STOCK CARDS -->
+  <div class="sec-header fade-up d2">
+    <span class="sec-title">Individual Stock Reports</span>
+    <span class="sec-badge">Click any card to open full report</span>
+  </div>
+
+  <div class="stocks-grid">
+
+    <!-- MSFT -->
+    <a class="stock-card sc-blue fade-up d2" href="Stock.html#sec-msft" onclick="setActive('msft')">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-msft">MSFT</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#00d084">38</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Microsoft Corporation</div>
+      <div class="sc-sector">Cloud · AI · Enterprise Software</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$415.75</span>
+        <span class="sc-chg up">▲ +2.04%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">26.5x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$3.08T</div></div>
+        <div class="sc-metric"><div class="scm-label">FCF</div><div class="scm-val">$77.4B</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#00d084">LOW–MOD · 38/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:38%;background:linear-gradient(90deg,#00d084,#ffb547)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-sb">STRONG BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- GOOGL -->
+    <a class="stock-card sc-blue fade-up d3" href="Stock.html#sec-googl" onclick="setActive('googl')">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-googl">GOOGL</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#ffb547">45</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Alphabet Inc.</div>
+      <div class="sc-sector">Search · Cloud · AI · Advertising</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$344.12</span>
+        <span class="sc-chg up">▲ +1.71%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">31.6x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$4.08T</div></div>
+        <div class="sc-metric"><div class="scm-label">Cloud Gr</div><div class="scm-val">+48%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#ffb547">MODERATE · 45/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:45%;background:linear-gradient(90deg,#ffb547,#ff8c42)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-sb">STRONG BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- AMZN -->
+    <a class="stock-card sc-orange fade-up d4" href="Stock.html#sec-amzn" onclick="setActive('amzn')">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-amzn">AMZN</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#ffb547">52</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Amazon.com Inc.</div>
+      <div class="sc-sector">E-Commerce · AWS · Advertising</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$255.36</span>
+        <span class="sc-chg up">▲ +0.23%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">35.6x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$2.75T</div></div>
+        <div class="sc-metric"><div class="scm-label">AWS Gr</div><div class="scm-val">+24%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#ffb547">MOD-HIGH · 52/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:52%;background:linear-gradient(90deg,#ffb547,#ff4d6d)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-sb">STRONG BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- NVDA -->
+    <a class="stock-card sc-green fade-up d5" href="NVDA.html">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-nvda">NVDA</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#ffb547">48</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">NVIDIA Corporation</div>
+      <div class="sc-sector">AI Chips · Data Center · Graphics</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$208.27</span>
+        <span class="sc-chg up">▲ +4.74%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">40.7x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">~$2.5T</div></div>
+        <div class="sc-metric"><div class="scm-label">Rev Gr</div><div class="scm-val">+65%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#ffb547">MODERATE · 48/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:48%;background:linear-gradient(90deg,#76b900,#ffb547)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-sb">STRONG BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- TSLA -->
+    <a class="stock-card sc-red fade-up d6" href="TSLA.html">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-tsla">TSLA</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#ff4d6d">78</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Tesla Inc.</div>
+      <div class="sc-sector">EVs · Energy · Robotaxi · AI</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$388.73</span>
+        <span class="sc-chg up">▲ +0.82%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">346x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$1.46T</div></div>
+        <div class="sc-metric"><div class="scm-label">Op Mgn</div><div class="scm-val">4.9%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#ff4d6d">HIGH · 78/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:78%;background:linear-gradient(90deg,#ffb547,#ff4d6d)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-h">HOLD</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- AAPL -->
+    <a class="stock-card sc-teal fade-up d7" href="AAPL.html">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-aapl">AAPL</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#ffb547">42</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Apple Inc.</div>
+      <div class="sc-sector">Consumer Tech · Services · Silicon</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$270.90</span>
+        <span class="sc-chg up">▲ +0.87%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">34.3x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$4.09T</div></div>
+        <div class="sc-metric"><div class="scm-label">Div Yld</div><div class="scm-val">0.56%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#ffb547">MODERATE · 42/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:42%;background:linear-gradient(90deg,#00d084,#ffb547)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-sb">STRONG BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- META -->
+    <a class="stock-card sc-blue fade-up d8" href="META.html">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-meta">META</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#00d084">35</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Meta Platforms Inc.</div>
+      <div class="sc-sector">Social Media · AI · AR/VR</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$676.73</span>
+        <span class="sc-chg up">▲ +2.41%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">28.5x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$1.71T</div></div>
+        <div class="sc-metric"><div class="scm-label">Op Mgn</div><div class="scm-val">41.4%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#00d084">LOW–MOD · 35/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:35%;background:linear-gradient(90deg,#00d084,#ffb547)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-sb">STRONG BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- MRVL -->
+    <a class="stock-card sc-purple fade-up d8" href="MRVL.html">
+      <div class="sc-top">
+        <span class="sc-ticker-badge badge-mrvl">MRVL</span>
+        <div class="sc-risk-score"><span class="risk-num" style="color:#ffb547">58</span><span class="risk-lbl">Risk Score</span></div>
+      </div>
+      <div class="sc-name">Marvell Technology Inc.</div>
+      <div class="sc-sector">AI Semiconductors · Networking · ASIC</div>
+      <div class="sc-price-row">
+        <span class="sc-price">$147.84</span>
+        <span class="sc-chg up">▲ +4.74%</span>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><div class="scm-label">P/E</div><div class="scm-val">57.1x</div></div>
+        <div class="sc-metric"><div class="scm-label">Mkt Cap</div><div class="scm-val">$122B</div></div>
+        <div class="sc-metric"><div class="scm-label">Rev Gr</div><div class="scm-val">+42%</div></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span class="sc-bar-lbl">Risk Level</span><span class="sc-bar-val" style="color:#ffb547">MOD-HIGH · 58/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:58%;background:linear-gradient(90deg,#a855f7,#ff4d6d)"></div></div>
+      </div>
+      <div class="sc-footer">
+        <span class="sc-rating rating-b">COND. BUY</span>
+        <span class="sc-arrow">View Full Report →</span>
+      </div>
+    </a>
+
+    <!-- ADD NEW -->
+    <div class="add-card fade-up d8" onclick="showAddInfo()">
+      <div class="add-icon">＋</div>
+      <div class="add-title">Add a New Stock Report</div>
+      <div class="add-sub">Create a new HTML file in your repo<br>and link it here</div>
+    </div>
+
+  </div>
+
+  <!-- WATCHLIST TABLE -->
+  <div class="sec-header fade-up">
+    <span class="sec-title">Quick Comparison Table</span>
+    <span class="sec-badge">All 8 Stocks</span>
+  </div>
+  <table class="watch-table fade-up">
+    <thead>
+      <tr>
+        <th>Ticker</th><th>Company</th><th>Price</th><th>52-Wk Chg</th>
+        <th>P/E</th><th>Mkt Cap</th><th>Consensus</th>
+        <th>Risk Score</th><th>Risk Bar</th><th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="wt-ticker">MSFT</span></td>
+        <td><span class="wt-name">Microsoft</span></td>
+        <td>$415.75</td><td class="up">+20.1%</td>
+        <td>26.5x</td><td>$3.08T</td>
+        <td><span class="sc-rating rating-sb" style="font-size:9px">STR BUY</span></td>
+        <td style="color:#00d084;font-weight:700">38</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:38%;background:var(--green)"></div></div></td>
+        <td><a class="wt-link" href="Stock.html#sec-msft">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">GOOGL</span></td>
+        <td><span class="wt-name">Alphabet</span></td>
+        <td>$344.12</td><td class="up">+124.3%</td>
+        <td>31.6x</td><td>$4.08T</td>
+        <td><span class="sc-rating rating-sb" style="font-size:9px">STR BUY</span></td>
+        <td style="color:#ffb547;font-weight:700">45</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:45%;background:var(--amber)"></div></div></td>
+        <td><a class="wt-link" href="Stock.html#sec-googl">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">AMZN</span></td>
+        <td><span class="wt-name">Amazon</span></td>
+        <td>$255.36</td><td class="up">+43%</td>
+        <td>35.6x</td><td>$2.75T</td>
+        <td><span class="sc-rating rating-sb" style="font-size:9px">STR BUY</span></td>
+        <td style="color:#ffb547;font-weight:700">52</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:52%;background:var(--amber)"></div></div></td>
+        <td><a class="wt-link" href="Stock.html#sec-amzn">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">NVDA</span></td>
+        <td><span class="wt-name">NVIDIA</span></td>
+        <td>$208.27</td><td class="up">+~50%</td>
+        <td>40.7x</td><td>~$2.5T</td>
+        <td><span class="sc-rating rating-sb" style="font-size:9px">STR BUY</span></td>
+        <td style="color:#ffb547;font-weight:700">48</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:48%;background:var(--amber)"></div></div></td>
+        <td><a class="wt-link" href="NVDA.html">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">TSLA</span></td>
+        <td><span class="wt-name">Tesla</span></td>
+        <td>$388.73</td><td class="up">+49.8%</td>
+        <td>346x</td><td>$1.46T</td>
+        <td><span class="sc-rating rating-h" style="font-size:9px">HOLD</span></td>
+        <td style="color:#ff4d6d;font-weight:700">78</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:78%;background:var(--red)"></div></div></td>
+        <td><a class="wt-link" href="TSLA.html">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">AAPL</span></td>
+        <td><span class="wt-name">Apple</span></td>
+        <td>$270.90</td><td class="up">+~14%</td>
+        <td>34.3x</td><td>$4.09T</td>
+        <td><span class="sc-rating rating-sb" style="font-size:9px">STR BUY</span></td>
+        <td style="color:#ffb547;font-weight:700">42</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:42%;background:var(--amber)"></div></div></td>
+        <td><a class="wt-link" href="AAPL.html">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">META</span></td>
+        <td><span class="wt-name">Meta Platforms</span></td>
+        <td>$676.73</td><td class="up">+39.3%</td>
+        <td>28.5x</td><td>$1.71T</td>
+        <td><span class="sc-rating rating-sb" style="font-size:9px">STR BUY</span></td>
+        <td style="color:#00d084;font-weight:700">35</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:35%;background:var(--green)"></div></div></td>
+        <td><a class="wt-link" href="META.html">Open →</a></td>
+      </tr>
+      <tr>
+        <td><span class="wt-ticker">MRVL</span></td>
+        <td><span class="wt-name">Marvell Tech</span></td>
+        <td>$147.84</td><td class="up">+185.9%</td>
+        <td>57.1x</td><td>$122B</td>
+        <td><span class="sc-rating rating-b" style="font-size:9px">COND. BUY</span></td>
+        <td style="color:#ffb547;font-weight:700">58</td>
+        <td><div class="mini-bar"><div class="mini-fill" style="width:58%;background:var(--amber)"></div></div></td>
+        <td><a class="wt-link" href="MRVL.html">Open →</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- HOW TO ADD A NEW STOCK -->
+  <div class="sec-header fade-up">
+    <span class="sec-title">How to Add a New Stock</span>
+    <span class="sec-badge">GitHub Pages Guide</span>
+  </div>
+  <div class="howto fade-up">
+    <div class="howto-title">📋 4-Step Process to Add Any Stock</div>
+    <div class="howto-steps">
+      <div class="howto-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Generate the Report</div>
+        <div class="step-body">Ask Claude to build a full risk report for your new ticker (e.g. "Build a risk report for NVDA like the MSFT one"). Use the same dark design system.</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">02</div>
+        <div class="step-title">Upload to GitHub</div>
+        <div class="step-body">Go to your repo → click "Add file" → "Create new file". Name it TICKER.html (e.g. NVDA.html). Paste the HTML and commit.</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">03</div>
+        <div class="step-title">Update This Homepage</div>
+        <div class="step-body">Edit index.html — copy an existing stock card, update the ticker/price/data, and change the href to "TICKER.html". Add a row to the table too.</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">04</div>
+        <div class="step-title">Done — It's Live!</div>
+        <div class="step-body">GitHub Pages auto-deploys in ~1 min. Your new stock card appears on the homepage and links directly to the report. No build step needed.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end sec-wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <strong style="color:var(--text)">STOCK RISK TRACKER</strong> by Sonyboy30 · Powered by Claude AI<br>
+    Data sourced from SEC filings, StockAnalysis, TradingView, Yahoo Finance · Last updated Apr 25, 2026<br>
+    ⚠ For informational purposes only. Not investment advice. Not a registered investment adviser.
+  </div>
+  <div class="footer-right">
+    <a class="footer-link" href="Stock.html">MSFT·GOOGL·AMZN Report</a>
+    <a class="footer-link" href="MRVL.html">MRVL Report</a>
+    <a class="footer-link" href="https://github.com/Sonyboy30/Claude-Stock-Tracker" target="_blank">GitHub Repo</a>
+  </div>
+</footer>
+
+<script>
+// Date
+document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+// Ticker tape data
+const tickers = [
+  {sym:'MSFT', price:'$415.75', chg:'+2.04%', up:true},
+  {sym:'GOOGL', price:'$344.12', chg:'+1.71%', up:true},
+  {sym:'AMZN', price:'$255.36', chg:'+0.23%', up:true},
+  {sym:'NVDA', price:'$208.27', chg:'+4.74%', up:true},
+  {sym:'TSLA', price:'$388.73', chg:'+0.82%', up:true},
+  {sym:'AAPL', price:'$270.90', chg:'+0.87%', up:true},
+  {sym:'META', price:'$676.73', chg:'+2.41%', up:true},
+  {sym:'MRVL', price:'$147.84', chg:'+4.74%', up:true},
+  {sym:'SPY',  price:'$701.05', chg:'+0.16%', up:true},
+  {sym:'AMD',  price:'$277.70', chg:'+7.58%', up:true},
+  {sym:'INTC', price:'$67.72',  chg:'+4.28%', up:true},
+  {sym:'AVGO', price:'$397.76', chg:'+0.26%', up:true},
+  {sym:'PLTR', price:'$142.57', chg:'+0.29%', up:true},
+];
+// duplicate for seamless loop
+const tape = document.getElementById('tape');
+const allTickers = [...tickers, ...tickers];
+tape.innerHTML = allTickers.map(t=>`
+  <div class="tick-item">
+    <span class="tick-sym">${t.sym}</span>
+    <span class="tick-price">${t.price}</span>
+    <span class="tick-chg ${t.up?'up':'dn'}">${t.chg}</span>
+  </div>`).join('');
+
+// Tab switcher for Stock.html
+function setActive(id) {
+  localStorage.setItem('activeTab', id);
+}
+
+// Add stock modal info
+function showAddInfo() {
+  alert('To add a new stock:\n\n1. Ask Claude to build a risk report HTML file for your new ticker\n2. Go to github.com/Sonyboy30/Claude-Stock-Tracker\n3. Click "Add file" → "Create new file"\n4. Name it TICKER.html (e.g. NVDA.html)\n5. Paste the code and commit\n6. Edit index.html to add a card and table row\n\nGitHub Pages will auto-deploy in ~1 minute!');
+}
+</script>
+</body>
+</html>
