@@ -6,564 +6,1226 @@
 <title>Stock Risk Tracker — Sonyboy30</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  
-<nav class="site-nav">
-  <a class="sn-brand" href="index.html">
-    <div class="sn-logo">S</div>
-    <span class="sn-title">STOCK RISK TRACKER</span>
-  </a>
-  <div class="sn-links">
-    <a class="sn-link" href="index.html">🏠 Home</a>
-    <a class="sn-link" href="Stock.html">📋 MSFT·GOOGL·AMZN</a>
-    <a class="sn-link active" href="sectors.html">📊 Sectors</a>
-    <a class="sn-link" href="MRVL.html">MRVL</a>
-    <a class="sn-link" href="https://github.com/Sonyboy30/Claude-Stock-Tracker" target="_blank">⬡ GitHub</a>
-  </div>
-</nav>
-.site-nav{display:flex;justify-content:space-between;align-items:center;padding:12px 28px;border-bottom:1px solid var(--border);background:rgba(8,9,13,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
-.sn-brand{display:flex;align-items:center;gap:8px;text-decoration:none}
-.sn-logo{width:26px;height:26px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.sn-title{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff}
-.sn-links{display:flex;gap:2px}
-.sn-link{font-family:var(--mono);font-size:9px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:4px;transition:.15s}
-.sn-link:hover,.sn-link.active{background:rgba(108,99,255,.15);color:var(--accent)}
-@media(max-width:600px){.sn-links{display:none}}
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#08090d;--surf:#0f1117;--surf2:#13151e;--border:#1e2130;
   --accent:#6c63ff;--green:#00d084;--red:#ff4d6d;--amber:#ffb547;
   --text:#dde1f0;--muted:#5a6182;--dim:#1a1d2e;
   --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;
+  --sidebar:220px;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+*{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+
+/* ── TICKER ── */
+.tape{background:var(--surf);border-bottom:1px solid var(--border);padding:6px 0;overflow:hidden;white-space:nowrap;flex-shrink:0}
+.tape-inner{display:inline-flex;animation:ticker 55s linear infinite}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.fade-up{animation:fadeUp .55s both}
-.d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.19s}
-.d4{animation-delay:.26s}.d5{animation-delay:.33s}.d6{animation-delay:.40s}
-.d7{animation-delay:.47s}.d8{animation-delay:.54s}
+.ti{font-family:var(--mono);font-size:10px;padding:0 20px;display:flex;align-items:center;gap:6px;border-right:1px solid var(--border)}
+.ts{color:#fff;font-weight:700}.tp{color:var(--muted)}.tc{font-size:9px;padding:2px 5px;border-radius:3px}
+.up{background:rgba(0,208,132,.15);color:var(--green)}.dn{background:rgba(255,77,109,.15);color:var(--red)}
 
-/* TICKER */
-.ticker-tape{background:var(--surf);border-bottom:1px solid var(--border);padding:7px 0;overflow:hidden;white-space:nowrap}
-.ticker-inner{display:inline-flex;gap:0;animation:ticker 45s linear infinite}
-.tick-item{font-family:var(--mono);font-size:11px;padding:0 28px;display:flex;align-items:center;gap:8px;border-right:1px solid var(--border)}
-.tick-sym{color:#fff;font-weight:700}
-.tick-price{color:var(--muted)}
-.tick-chg{font-size:10px;padding:1px 5px;border-radius:3px}
-.up{background:rgba(0,208,132,.15);color:var(--green)}
-.dn{background:rgba(255,77,109,.15);color:var(--red)}
+/* ── LAYOUT ── */
+.app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 33px)}
 
-/* NAV */
-nav{display:flex;justify-content:space-between;align-items:center;padding:14px 36px;border-bottom:1px solid var(--border);background:rgba(8,9,13,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
-.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
-.nav-title{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;letter-spacing:.3px}
-.nav-sub{font-size:10px;color:var(--muted)}
-.navlinks{display:flex;gap:2px}
-.navlink{font-family:var(--mono);font-size:10px;color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:5px;transition:.18s;white-space:nowrap}
-.navlink:hover{background:rgba(108,99,255,.15);color:var(--accent)}
-.navlink.active{background:rgba(108,99,255,.2);color:var(--accent)}
-.nav-right{display:flex;align-items:center;gap:10px}
-.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
-.nav-status{font-family:var(--mono);font-size:10px;color:var(--green)}
-.nav-date{font-family:var(--mono);font-size:10px;color:var(--muted)}
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-brand{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
+.sb-logo{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;margin-bottom:7px}
+.sb-title{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff;letter-spacing:.3px}
+.sb-sub{font-size:9px;color:var(--muted);margin-top:2px}
+.sb-section{padding:10px 10px 4px;font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-radius:6px;margin:1px 6px;transition:.15s;font-size:12px;color:var(--muted);user-select:none;text-decoration:none}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sb-item.active{background:rgba(108,99,255,.15);color:var(--accent);font-weight:600}
+.sb-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.sb-label{font-size:12px}
+.sb-badge{margin-left:auto;font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:3px}
+.sb-divider{height:1px;background:var(--border);margin:6px 12px}
+.sb-status{padding:10px 12px;margin-top:auto;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-live{font-family:var(--mono);font-size:9px;color:var(--green)}
+.sb-time{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto}
 
-/* HERO */
-.hero{padding:56px 36px 40px;max-width:1220px;margin:0 auto}
-.hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
-.hero-h1{font-size:40px;font-weight:700;color:#fff;line-height:1.18;margin-bottom:14px}
-.hero-h1 span{color:var(--accent)}
-.hero-sub{font-size:15px;color:var(--muted);max-width:560px;line-height:1.7;margin-bottom:28px}
-.hero-stats{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:24px}
-.h-stat{display:flex;flex-direction:column;gap:3px}
-.h-stat-val{font-family:var(--mono);font-size:20px;font-weight:700;color:#fff}
-.h-stat-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
-.cta-btn{padding:10px 20px;border-radius:8px;font-family:var(--mono);font-size:11px;font-weight:700;text-decoration:none;letter-spacing:.5px;transition:.18s}
-.cta-primary{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(108,99,255,.35)}
-.cta-primary:hover{background:#5b54e8}
-.cta-secondary{background:var(--surf);color:var(--text);border:1px solid var(--border)}
-.cta-secondary:hover{background:var(--surf2);border-color:var(--accent)}
+/* ── MAIN CONTENT ── */
+.main{flex:1;overflow-y:auto}
+.page{display:none;padding:28px 32px;animation:fadeUp .4s both}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
-/* WRAP */
-.sec-wrap{max-width:1220px;margin:0 auto;padding:0 36px 64px}
-.sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-.sec-title{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
-.sec-badge{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(108,99,255,.12);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
+/* ── SHARED COMPONENTS ── */
+.page-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sec-label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+.sec-pill{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;background:rgba(108,99,255,.12);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.kv{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.kval{font-family:var(--mono);font-size:18px;font-weight:700;color:#fff}
+.badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;display:inline-flex;align-items:center}
+.b-g{background:rgba(0,208,132,.15);color:var(--green);border:1px solid rgba(0,208,132,.2)}
+.b-a{background:rgba(255,181,71,.15);color:var(--amber);border:1px solid rgba(255,181,71,.2)}
+.b-r{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.2)}
+.b-p{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
+.bar-track{background:var(--dim);border-radius:100px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;transition:width .6s}
 
-/* MARKET BAR */
-.mkt-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:44px}
-.mkt-tile{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-.mt-left{display:flex;flex-direction:column;gap:2px}
-.mt-label{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-.mt-val{font-family:var(--mono);font-size:17px;font-weight:700;color:#fff}
-.mt-chg{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px}
+/* ── HOME ── */
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.hero-card{background:linear-gradient(135deg,rgba(108,99,255,.1),rgba(0,208,132,.05));border:1px solid rgba(108,99,255,.2);border-radius:12px;padding:20px 22px}
+.hero-card h2{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
+.hero-card p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.stats-row{display:flex;gap:20px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-v{font-family:var(--mono);font-size:20px;font-weight:700;color:#fff}
+.stat-l{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+.mkt-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:22px}
+.mkt-card{background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:12px 14px;position:relative;overflow:hidden}
+.mkt-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.mc-g::after{background:var(--green)}.mc-r::after{background:var(--red)}.mc-a::after{background:var(--amber)}
+.mc-lbl{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.mc-v{font-family:var(--mono);font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
+.mc-chg{font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px}
 
-/* STOCK GRID */
-.stocks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:44px}
-.stock-card{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;text-decoration:none;display:block;transition:transform .18s,border-color .18s,box-shadow .18s;position:relative;overflow:hidden}
-.stock-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 28px rgba(108,99,255,.16)}
-.stock-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.sc-blue::before{background:linear-gradient(90deg,#00bcf0,#6c63ff)}
-.sc-green::before{background:linear-gradient(90deg,#00d084,#4ade80)}
-.sc-purple::before{background:linear-gradient(90deg,#a855f7,#6c63ff)}
-.sc-red::before{background:linear-gradient(90deg,#ff4d6d,#f97316)}
-.sc-orange::before{background:linear-gradient(90deg,#ff9900,#ffb547)}
-.sc-teal::before{background:linear-gradient(90deg,#06b6d4,#00d084)}
-.sc-pink::before{background:linear-gradient(90deg,#ec4899,#a855f7)}
-.sc-yellow::before{background:linear-gradient(90deg,#eab308,#f97316)}
+/* ── STOCKS GRID ── */
+.stocks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stock-card{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s;position:relative;overflow:hidden}
+.stock-card:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 6px 24px rgba(108,99,255,.15)}
+.stock-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sct{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.sc-tb{font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 10px;border-radius:5px}
+.risk-b{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.rb-n{font-family:var(--mono);font-size:19px;font-weight:700}
+.rb-l{font-family:var(--mono);font-size:7px;color:var(--muted);text-transform:uppercase}
+.sc-name{font-size:13px;font-weight:600;color:#fff;margin-bottom:1px}
+.sc-sec{font-size:10px;color:var(--muted);margin-bottom:8px}
+.sc-pr{display:flex;align-items:baseline;gap:7px;margin-bottom:8px}
+.sc-price{font-family:var(--mono);font-size:18px;font-weight:700;color:#fff}
+.sc-chg{font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:3px}
+.sc-m3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:9px}
+.sc-mc{background:var(--dim);border-radius:5px;padding:6px 7px}
+.sc-ml{font-family:var(--mono);font-size:7px;color:var(--muted);text-transform:uppercase;margin-bottom:1px}
+.sc-mv{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff}
+.sc-foot{display:flex;justify-content:space-between;align-items:center;padding-top:9px;border-top:1px solid var(--border)}
+.sc-arr{font-family:var(--mono);font-size:10px;color:var(--muted);transition:.18s}
+.stock-card:hover .sc-arr{color:var(--accent)}
 
-.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-.sc-ticker-badge{font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 11px;border-radius:6px}
-.badge-msft{background:rgba(0,188,240,.12);color:#00bcf0;border:1px solid rgba(0,188,240,.2)}
-.badge-googl{background:rgba(66,133,244,.12);color:#4285f4;border:1px solid rgba(66,133,244,.2)}
-.badge-amzn{background:rgba(255,153,0,.12);color:#ff9900;border:1px solid rgba(255,153,0,.2)}
-.badge-nvda{background:rgba(118,185,0,.12);color:#76b900;border:1px solid rgba(118,185,0,.2)}
-.badge-tsla{background:rgba(204,0,0,.12);color:#ff4d4d;border:1px solid rgba(204,0,0,.2)}
-.badge-aapl{background:rgba(200,200,200,.1);color:#d1d5db;border:1px solid rgba(200,200,200,.15)}
-.badge-meta{background:rgba(24,119,242,.12);color:#1877f2;border:1px solid rgba(24,119,242,.2)}
-.badge-mrvl{background:rgba(108,99,255,.12);color:#6c63ff;border:1px solid rgba(108,99,255,.2)}
-.badge-custom{background:rgba(255,181,71,.1);color:#ffb547;border:1px solid rgba(255,181,71,.2)}
-
-.sc-risk-score{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
-.risk-num{font-family:var(--mono);font-size:22px;font-weight:700}
-.risk-lbl{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-
-.sc-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
-.sc-sector{font-size:11px;color:var(--muted);margin-bottom:12px}
-.sc-price-row{display:flex;align-items:baseline;gap:7px;margin-bottom:12px}
-.sc-price{font-family:var(--mono);font-size:22px;font-weight:700;color:#fff}
-.sc-chg{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px}
-.sc-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
-.sc-metric{background:var(--dim);border-radius:6px;padding:7px 8px}
-.scm-label{font-family:var(--mono);font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
-.scm-val{font-family:var(--mono);font-size:11px;font-weight:700;color:#fff}
-.sc-bar-wrap{margin-bottom:12px}
-.sc-bar-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.sc-bar-lbl{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase}
-.sc-bar-val{font-family:var(--mono);font-size:8px;font-weight:600}
-.sc-bar-track{background:var(--dim);height:5px;border-radius:100px;overflow:hidden}
-.sc-bar-fill{height:100%;border-radius:100px}
-.sc-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border)}
-.sc-rating{font-family:var(--mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px}
-.rating-sb{background:rgba(0,208,132,.15);color:var(--green);border:1px solid rgba(0,208,132,.2)}
-.rating-b{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.2)}
-.rating-h{background:rgba(255,181,71,.15);color:var(--amber);border:1px solid rgba(255,181,71,.2)}
-.sc-arrow{font-family:var(--mono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;transition:color .18s,gap .18s}
-.stock-card:hover .sc-arrow{color:var(--accent);gap:8px}
-
-/* ADD CARD */
-.add-card{background:var(--surf);border:2px dashed var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:260px;cursor:pointer;transition:border-color .18s;text-decoration:none}
+/* ── ADD STOCK ── */
+.add-card{background:var(--surf);border:2px dashed var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;cursor:pointer;transition:border-color .18s}
 .add-card:hover{border-color:var(--accent)}
-.add-icon{width:44px;height:44px;border-radius:10px;background:var(--dim);display:flex;align-items:center;justify-content:center;font-size:20px}
-.add-title{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;font-weight:600}
-.add-sub{font-size:11px;color:var(--muted);opacity:.6;text-align:center;line-height:1.5}
 
-/* QUICK TABLE */
-.watch-table{width:100%;border-collapse:collapse;margin-bottom:44px}
-.watch-table th{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:9px 12px;background:var(--surf2);text-align:left;border-bottom:1px solid var(--border)}
-.watch-table td{font-family:var(--mono);font-size:11px;padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+/* ── STOCK DETAIL ── */
+.detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.dh-left{display:flex;align-items:center;gap:14px}
+.ticker-big{font-family:var(--mono);font-size:20px;font-weight:700;padding:6px 14px;border-radius:8px}
+.dh-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.price-line{display:flex;align-items:baseline;gap:8px}
+.price-num{font-family:var(--mono);font-size:26px;font-weight:700;color:#fff}
+.gauge-mini{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.gauge-box{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:16px 20px;text-align:center;min-width:140px}
+.gauge-num{font-family:var(--mono);font-size:32px;font-weight:700}
+.gauge-lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1px}
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;flex:1}
+.kpi-tile{background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:12px}
+.kpi-n{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kpi-v{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
+.kpi-d{font-family:var(--mono);font-size:8px;padding:2px 5px;border-radius:3px;font-weight:600}
+.cards-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:18px}
+.mc{background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:12px;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc-g2::before{background:var(--green)}.mc-a2::before{background:var(--amber)}.mc-r2::before{background:var(--red)}
+.mc-l{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.mc-v2{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.mc-b{font-size:10px;color:var(--muted);margin-bottom:4px;line-height:1.3}
+.mc-sig{font-family:var(--mono);font-size:8px;font-weight:700;display:flex;align-items:center;gap:4px}
+.score-section{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:18px}
+.score-rows{display:flex;flex-direction:column;gap:11px;margin-top:12px}
+.score-row{display:grid;grid-template-columns:180px 1fr 55px 65px;gap:12px;align-items:center}
+.score-name{font-family:var(--mono);font-size:10px;color:var(--text)}
+.score-wt{font-family:var(--mono);font-size:8px;color:var(--muted)}
+.score-pts{font-family:var(--mono);font-size:11px;font-weight:700;text-align:right}
+.total-row{border-top:1px solid var(--border);padding-top:10px;margin-top:2px}
+.grand{font-family:var(--mono);font-size:22px;font-weight:700;padding:3px 14px;border-radius:7px;border:1px solid}
+/* page 2 detail */
+.qtable{width:100%;border-collapse:collapse;margin-bottom:18px}
+.qtable th{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;padding:7px 9px;background:var(--surf2);text-align:left;border-bottom:1px solid var(--border)}
+.qtable td{font-family:var(--mono);font-size:10px;padding:8px 9px;border-bottom:1px solid var(--border);color:var(--text)}
+.qtable tr:last-child td{border:none}
+.qtable tr:hover td{background:rgba(255,255,255,.02)}
+.beat{color:var(--green);font-weight:700}.miss{color:var(--red);font-weight:700}
+.qb{font-size:8px;padding:2px 5px;border-radius:3px;font-family:var(--mono);font-weight:700}
+.qb-b{background:rgba(0,208,132,.14);color:var(--green)}.qb-m{background:rgba(255,77,109,.14);color:var(--red)}.qb-x{background:rgba(255,181,71,.14);color:var(--amber)}
+.update-box{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.ub-hd{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.ub-hl{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px}
+.ub-li{font-size:12px;color:var(--text);padding-left:12px;position:relative;margin-bottom:5px}
+.ub-li::before{content:'›';position:absolute;left:0;color:var(--accent)}
+.ub-q{margin-top:10px;font-style:italic;font-size:11px;color:var(--muted);border-left:3px solid var(--accent);padding-left:9px}
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.dc{display:flex;flex-direction:column;gap:8px}
+.dc-hd{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.ic{border-radius:7px;padding:10px 12px;border:1px solid var(--border)}
+.ic-g{border-left:2px solid var(--green);background:rgba(0,208,132,.04)}
+.ic-r{border-left:2px solid var(--red);background:rgba(255,77,109,.04)}
+.ic-title{font-size:11px;font-weight:600;color:#fff;margin-bottom:3px}
+.ic-body{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:5px}
+.imp{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 6px;border-radius:3px}
+.imp-h{background:rgba(255,77,109,.2);color:var(--red)}.imp-m{background:rgba(255,181,71,.2);color:var(--amber)}.imp-l{background:rgba(0,208,132,.2);color:var(--green)}
+.bottom-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.bl-grid{display:grid;grid-template-columns:1fr 240px;gap:20px;align-items:start}
+.verdict p{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:7px}
+.rating-track{display:flex;height:26px;border-radius:7px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px}
+.rseg{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:7px;font-weight:700;opacity:.3}
+.rseg.active{opacity:1;outline:2px solid rgba(255,255,255,.2);outline-offset:-2px}
+.rs-ss{background:#4c0519;color:#fda4af}.rs-s{background:#7c2d12;color:#fdba74}
+.rs-h{background:#1e3a5f;color:#93c5fd}.rs-b{background:#14532d;color:#86efac}.rs-sb{background:#052e16;color:#4ade80}
+.pt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.pt-cell{background:var(--surf2);border-radius:5px;padding:7px}
+.pt-l{font-family:var(--mono);font-size:7px;color:var(--muted);text-transform:uppercase}
+.pt-v{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff}
+.cb-sb{background:rgba(0,208,132,.15);color:var(--green);border:1px solid rgba(0,208,132,.3);font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 12px;border-radius:5px;display:inline-block;margin-bottom:8px}
+/* sub-tabs for detail pages */
+.sub-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.sub-tab{font-family:var(--mono);font-size:10px;padding:8px 16px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.18s;user-select:none}
+.sub-tab.active{color:#fff;border-color:var(--accent)}
+.sub-page{display:none}.sub-page.active{display:block}
+/* chart */
+.chart-card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:18px}
+.chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.chart-legend{display:flex;gap:12px}
+.cl-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:8px;color:var(--muted)}
+.cl-dot{width:6px;height:6px;border-radius:50%}
+/* table page */
+.watch-table{width:100%;border-collapse:collapse}
+.watch-table th{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;padding:8px 10px;background:var(--surf2);text-align:left;border-bottom:1px solid var(--border)}
+.watch-table td{font-family:var(--mono);font-size:11px;padding:10px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 .watch-table tr:hover td{background:rgba(255,255,255,.02)}
 .watch-table tr:last-child td{border:none}
-.wt-ticker{font-weight:700;color:#fff}
 .mini-bar{width:70px;height:4px;background:var(--dim);border-radius:100px;overflow:hidden;display:inline-block;vertical-align:middle}
-.mini-fill{height:100%;border-radius:100px}
-.wt-link{color:var(--accent);text-decoration:none;font-size:9px;padding:3px 9px;border:1px solid rgba(108,99,255,.3);border-radius:4px;transition:.18s;white-space:nowrap}
-.wt-link:hover{background:rgba(108,99,255,.15)}
-
-/* HOW-TO */
-.howto{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:44px}
-.howto-title{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
-.howto-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.step-num{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--dim);margin-bottom:6px}
-.step-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:6px}
-.step-body{font-size:12px;color:var(--muted);line-height:1.6}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mb-fill{height:100%;border-radius:100px}
+.wt-btn{font-family:var(--mono);font-size:9px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid rgba(108,99,255,.3);border-radius:3px;cursor:pointer;background:none;transition:.18s}
+.wt-btn:hover{background:rgba(108,99,255,.15)}
+/* sectors */
+.sec-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px}
+.sec-tab{font-family:var(--mono);font-size:9px;padding:5px 12px;border-radius:5px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surf);transition:.18s;user-select:none}
+.sec-tab:hover{border-color:var(--accent);color:var(--text)}
+.sec-tab.active{color:#fff;border-color:transparent}
+.sec-panel{display:none}.sec-panel.active{display:block}
+.sec-hdr-card{border-radius:10px;padding:16px 18px;margin-bottom:16px;border:1px solid var(--border)}
+.sec-stats{display:flex;gap:20px;margin-top:10px;flex-wrap:wrap}
+.ss{display:flex;flex-direction:column;gap:2px}
+.ss-v{font-family:var(--mono);font-size:14px;font-weight:700;color:#fff}
+.ss-l{font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase}
+.stocks-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+/* market overview */
+.ov-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+.ov-col{display:flex;flex-direction:column;gap:14px}
+.heatmap{display:grid;grid-template-columns:repeat(11,1fr);gap:5px;margin-bottom:18px}
+.hm-cell{border-radius:6px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.hm-t{font-family:var(--mono);font-size:9px;font-weight:700;color:#fff}
+.hm-c{font-family:var(--mono);font-size:8px}
+.mag7-row{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;margin-bottom:18px}
+.m7{background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:12px;cursor:pointer;transition:.15s}
+.m7:hover{border-color:var(--accent);transform:translateY(-1px)}
+.m7-t{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;margin-bottom:2px}
+.m7-p{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.m7-r{font-family:var(--mono);font-size:16px;font-weight:700}
+.m7-bar{height:3px;border-radius:100px;overflow:hidden;background:var(--dim);margin:6px 0 4px}
+.m7-fill{height:100%;border-radius:100px}
+.m7-rt{font-family:var(--mono);font-size:7px;font-weight:700}
+.rd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.rd{border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:3px}
+.rd-v{font-family:var(--mono);font-size:18px;font-weight:700;color:#fff}
+.rd-l{font-family:var(--mono);font-size:7px;text-transform:uppercase;letter-spacing:.6px}
+.sp-row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.sp-name{font-family:var(--mono);font-size:9px;color:var(--text);width:130px;flex-shrink:0}
+.sp-v{font-family:var(--mono);font-size:9px;font-weight:700;width:44px;text-align:right}
+.ec-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)}
+.ec-d{font-family:var(--mono);font-size:9px;color:var(--accent);width:44px;flex-shrink:0}
+.ec-sym{font-family:var(--mono);font-size:8px;font-weight:700;color:#fff;background:rgba(108,99,255,.15);padding:2px 5px;border-radius:3px}
+.ec-note{font-size:9px;color:var(--muted)}
+.top-pick{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.tp-rank{font-family:var(--mono);font-size:10px;color:var(--muted);width:12px}
+.tp-sym{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;width:38px}
+.verdict-box{background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(0,208,132,.05));border:1px solid rgba(108,99,255,.2);border-radius:10px;padding:18px 20px}
+.vb-title{font-family:var(--mono);font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.vb-text{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:10px}
+.vb-tags{display:flex;flex-wrap:wrap;gap:5px}
+.vtag{font-family:var(--mono);font-size:8px;padding:3px 8px;border-radius:3px;border:1px solid var(--border);color:var(--muted)}
+.vtag-g{border-color:rgba(0,208,132,.3);color:var(--green);background:rgba(0,208,132,.07)}
+.vtag-r{border-color:rgba(255,77,109,.3);color:var(--red);background:rgba(255,77,109,.07)}
+.vtag-a{border-color:rgba(255,181,71,.3);color:var(--amber);background:rgba(255,181,71,.07)}
+/* add stock modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;display:none}
 .modal-overlay.open{display:flex}
-.modal{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:28px;width:500px;max-width:90vw;position:relative}
-.modal h3{font-family:var(--mono);font-size:13px;color:#fff;margin-bottom:6px;font-weight:700}
-.modal p{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6}
-.modal-close{position:absolute;top:16px;right:16px;background:var(--dim);border:none;color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
-.modal-close:hover{color:#fff}
-.modal-steps{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
-.modal-step{display:flex;gap:12px;align-items:flex-start}
-.ms-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);background:rgba(108,99,255,.15);width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.ms-text{font-size:12px;color:var(--text);line-height:1.6}
-.ms-text strong{color:#fff}
-.ms-code{font-family:var(--mono);font-size:10px;background:var(--dim);padding:2px 7px;border-radius:3px;color:var(--amber)}
-.modal-cta{display:flex;gap:8px}
-.modal-btn{padding:9px 16px;border-radius:7px;font-family:var(--mono);font-size:10px;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:.18s}
-.modal-btn-primary{background:var(--accent);color:#fff}
-.modal-btn-primary:hover{background:#5b54e8}
-.modal-btn-secondary{background:var(--dim);color:var(--text)}
-.modal-btn-secondary:hover{background:var(--surf2)}
-
-/* FOOTER */
-footer{background:var(--surf);border-top:1px solid var(--border);padding:24px 36px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.footer-left{font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.8}
-.footer-right{display:flex;gap:14px}
-.footer-link{font-family:var(--mono);font-size:9px;color:var(--muted);text-decoration:none}
-.footer-link:hover{color:var(--text)}
-
-@media(max-width:900px){.stocks-grid{grid-template-columns:repeat(2,1fr)}.mkt-bar{grid-template-columns:repeat(2,1fr)}.howto-steps{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.stocks-grid{grid-template-columns:1fr}.sec-wrap,.hero{padding-left:16px;padding-right:16px}nav{padding-left:14px;padding-right:14px}.navlinks{display:none}}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:28px 32px;width:500px;max-width:95vw}
+.modal h3{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.modal label{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px}
+.modal input,.modal select,.modal textarea{width:100%;background:var(--surf2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:7px;font-family:var(--mono);font-size:12px;margin-bottom:12px;outline:none}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent)}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:4px}
+.btn{padding:9px 20px;border-radius:7px;font-family:var(--mono);font-size:11px;font-weight:700;border:none;cursor:pointer;letter-spacing:.5px}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#5b54e8}
+.btn-secondary{background:var(--surf2);color:var(--muted);border:1px solid var(--border)}.btn-secondary:hover{color:var(--text)}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.step{display:flex;flex-direction:column;gap:6px}
+.step-n{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--dim)}
+.step-t{font-size:12px;font-weight:600;color:#fff}
+.step-b{font-size:11px;color:var(--muted);line-height:1.5}
+/* footer */
+.pg-footer{padding:14px 32px;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--surf);flex-shrink:0}
+/* print */
+@media print{.sidebar,.tape,.modal-overlay{display:none!important}.app{display:block!important}.main{overflow:visible!important}.page{display:block!important;padding:0!important}*{animation:none!important}}
+/* responsive */
+@media(max-width:900px){.stocks-grid,.stocks-row,.mag7-row{grid-template-columns:repeat(2,1fr)}.kpi-row,.cards-grid{grid-template-columns:repeat(3,1fr)}.mkt-grid{grid-template-columns:repeat(3,1fr)}.heatmap{grid-template-columns:repeat(6,1fr)}.ov-grid{grid-template-columns:1fr}.hero-grid{grid-template-columns:1fr}.sidebar{width:56px}.sb-label,.sb-section,.sb-brand .sb-title,.sb-brand .sb-sub,.sb-badge,.sb-live,.sb-time{display:none}.sb-brand{padding:12px 8px}.sb-logo{margin-bottom:0}.sb-item{padding:9px;margin:1px 3px;justify-content:center}.sb-icon{width:auto}}
+@media(max-width:600px){.stocks-grid,.stocks-row,.mag7-row,.score-row,.pt-grid,.rd-grid,.bl-grid,.dual,.hero-grid,.ov-grid{grid-template-columns:1fr}.cards-grid,.kpi-row{grid-template-columns:repeat(2,1fr)}.page{padding:16px}}
 </style>
 </head>
 <body>
 
 <!-- TICKER TAPE -->
-<div class="ticker-tape"><div class="ticker-inner" id="tape"></div></div>
+<div class="tape"><div class="tape-inner" id="tape"></div></div>
 
-<!-- NAV -->
-<nav>
-  <a class="nav-brand" href="index.html">
-    <div class="nav-logo">S</div>
-    <div>
-      <div class="nav-title">STOCK RISK TRACKER</div>
-      <div class="nav-sub">by Sonyboy30 · Powered by Claude</div>
-    </div>
-  </a>
-  <div class="navlinks">
-    <a class="navlink active" href="index.html">🏠 Home</a>
-    <a class="navlink" href="Stock.html">📋 MSFT·GOOGL·AMZN</a>
-    <a class="navlink" href="sectors.html">📊 Sectors</a>
-    <a class="navlink" href="MRVL.html">MRVL</a>
-    <a class="navlink" href="https://github.com/Sonyboy30/Claude-Stock-Tracker" target="_blank">⬡ GitHub</a>
-  </div>
-  <div class="nav-right">
-    <div class="nav-dot"></div>
-    <span class="nav-status">LIVE</span>
-    <span class="nav-date" id="nav-date"></span>
-  </div>
-</nav>
+<div class="app">
 
-<!-- HERO -->
-<div class="hero fade-up">
-  <div class="hero-eyebrow">Equity Risk Intelligence Dashboard</div>
-  <h1 class="hero-h1">Know the Risk.<br>Make the <span>Right Call.</span></h1>
-  <p class="hero-sub">Deep-dive risk score reports for individual stocks — covering valuation, financial health, growth execution, and analyst consensus. Updated with live web data.</p>
-  <div class="hero-stats">
-    <div class="h-stat"><span class="h-stat-val" id="stock-count">8</span><span class="h-stat-lbl">Stocks Covered</span></div>
-    <div class="h-stat"><span class="h-stat-val">3</span><span class="h-stat-lbl">Report Bundles</span></div>
-    <div class="h-stat"><span class="h-stat-val">Apr 26</span><span class="h-stat-lbl">Last Updated</span></div>
-    <div class="h-stat"><span class="h-stat-val" style="color:var(--green)">7/8</span><span class="h-stat-lbl">Strong Buy</span></div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">S</div>
+    <div class="sb-title">RISK TRACKER</div>
+    <div class="sb-sub">by Sonyboy30 · Claude AI</div>
   </div>
-  <div class="hero-ctas">
-    <a class="cta-btn cta-primary" href="sectors.html">📊 View All Sectors</a>
-    <a class="cta-btn cta-secondary" href="Stock.html">📋 Mag 7 Reports</a>
-    <a class="cta-btn cta-secondary" href="#" onclick="openModal();return false;">➕ Add New Stock</a>
+
+  <div class="sb-section">Main</div>
+  <div class="sb-item active" onclick="nav('home',this)"><span class="sb-icon">🏠</span><span class="sb-label">Home</span></div>
+  <div class="sb-item" onclick="nav('market',this)"><span class="sb-icon">🌍</span><span class="sb-label">Market Overview</span></div>
+  <div class="sb-item" onclick="nav('table',this)"><span class="sb-icon">📋</span><span class="sb-label">All Stocks Table</span></div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Mag 7 Reports</div>
+  <div class="sb-item" onclick="nav('stock-msft',this)"><span class="sb-icon">🔷</span><span class="sb-label">MSFT · Microsoft</span><span class="sb-badge b-g">38</span></div>
+  <div class="sb-item" onclick="nav('stock-aapl',this)"><span class="sb-icon">🍎</span><span class="sb-label">AAPL · Apple</span><span class="sb-badge b-a">42</span></div>
+  <div class="sb-item" onclick="nav('stock-nvda',this)"><span class="sb-icon">🟢</span><span class="sb-label">NVDA · NVIDIA</span><span class="sb-badge b-a">48</span></div>
+  <div class="sb-item" onclick="nav('stock-googl',this)"><span class="sb-icon">🔵</span><span class="sb-label">GOOGL · Alphabet</span><span class="sb-badge b-a">45</span></div>
+  <div class="sb-item" onclick="nav('stock-meta',this)"><span class="sb-icon">🟦</span><span class="sb-label">META · Meta</span><span class="sb-badge b-g">35</span></div>
+  <div class="sb-item" onclick="nav('stock-amzn',this)"><span class="sb-icon">🟠</span><span class="sb-label">AMZN · Amazon</span><span class="sb-badge b-a">52</span></div>
+  <div class="sb-item" onclick="nav('stock-tsla',this)"><span class="sb-icon">🔴</span><span class="sb-label">TSLA · Tesla</span><span class="sb-badge b-r">78</span></div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Other Reports</div>
+  <div class="sb-item" onclick="nav('stock-mrvl',this)"><span class="sb-icon">🟣</span><span class="sb-label">MRVL · Marvell</span><span class="sb-badge b-a">58</span></div>
+  <div class="sb-item" onclick="nav('stock-jpm',this)"><span class="sb-icon">🏦</span><span class="sb-label">JPM · JPMorgan</span><span class="sb-badge b-g">32</span></div>
+  <div class="sb-item" onclick="nav('stock-xom',this)"><span class="sb-icon">⛽</span><span class="sb-label">XOM · ExxonMobil</span><span class="sb-badge b-a">52</span></div>
+  <div class="sb-item" onclick="nav('stock-unh',this)"><span class="sb-icon">💊</span><span class="sb-label">UNH · UnitedHealth</span><span class="sb-badge b-g">35</span></div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-section">Sectors</div>
+  <div class="sb-item" onclick="nav('sectors',this)"><span class="sb-icon">📊</span><span class="sb-label">Sector Hub</span></div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-item" onclick="openAddModal()"><span class="sb-icon">➕</span><span class="sb-label">Add a Stock</span></div>
+  <div class="sb-item" onclick="window.print()"><span class="sb-icon">🖨</span><span class="sb-label">Print / PDF</span></div>
+
+  <div class="sb-status">
+    <div class="sb-dot"></div>
+    <span class="sb-live">LIVE</span>
+    <span class="sb-time" id="sb-time"></span>
   </div>
 </div>
 
-<div class="sec-wrap">
+<!-- MAIN CONTENT AREA -->
+<div class="main" id="main">
 
-  <!-- MARKET SNAPSHOT -->
-  <div class="sec-header fade-up d1">
-    <span class="sec-title">Market Snapshot · Apr 26, 2026</span>
-    <span class="sec-badge">Estimated / cached</span>
-  </div>
-  <div class="mkt-bar fade-up d1">
-    <div class="mkt-tile"><div class="mt-left"><span class="mt-label">S&P 500</span><span class="mt-val">7,165</span></div><span class="mt-chg up">▲ +0.80%</span></div>
-    <div class="mkt-tile"><div class="mt-left"><span class="mt-label">NASDAQ</span><span class="mt-val">24,836</span></div><span class="mt-chg up">▲ +1.63%</span></div>
-    <div class="mkt-tile"><div class="mt-left"><span class="mt-label">VIX</span><span class="mt-val">18.71</span></div><span class="mt-chg dn">▼ -3.11%</span></div>
-    <div class="mkt-tile"><div class="mt-left"><span class="mt-label">10-Yr Yield</span><span class="mt-val">4.31%</span></div><span class="mt-chg dn">▼ -2bp</span></div>
-  </div>
+<!-- ══════════════ HOME ══════════════ -->
+<div class="page active" id="page-home">
+  <div class="page-title">Stock Risk Intelligence Dashboard</div>
+  <div class="page-sub">Apr 25, 2026 · 32 stocks covered across 11 sectors · Powered by Claude AI</div>
 
-  <!-- STOCK CARDS -->
-  <div class="sec-header fade-up d2">
-    <span class="sec-title">Individual Stock Reports</span>
-    <span class="sec-badge" id="card-count">8 stocks · click to open report</span>
-  </div>
-  <div class="stocks-grid" id="cards-grid"></div>
-
-  <!-- QUICK TABLE -->
-  <div class="sec-header fade-up">
-    <span class="sec-title">Quick Comparison Table</span>
-    <span class="sec-badge">All stocks</span>
-  </div>
-  <table class="watch-table fade-up" id="watch-table">
-    <thead><tr>
-      <th>Ticker</th><th>Company</th><th>Price</th><th>52-Wk Δ</th>
-      <th>P/E</th><th>Mkt Cap</th><th>Consensus</th>
-      <th>Risk</th><th>Bar</th><th>Report</th>
-    </tr></thead>
-    <tbody id="table-body"></tbody>
-  </table>
-
-  <!-- HOW TO ADD -->
-  <div class="sec-header fade-up">
-    <span class="sec-title">How to Add a New Stock</span>
-    <span class="sec-badge">GitHub Pages Guide</span>
-  </div>
-  <div class="howto fade-up">
-    <div class="howto-title">📋 4-Step Process to Add Any Stock</div>
-    <div class="howto-steps">
-      <div><div class="step-num">01</div><div class="step-title">Generate Report</div><div class="step-body">Ask Claude: "Build a dark HTML risk report for [TICKER] matching the Stock Risk Tracker design system." Copy the full HTML output.</div></div>
-      <div><div class="step-num">02</div><div class="step-title">Upload to GitHub</div><div class="step-body">Go to your repo → "Add file" → "Create new file" → name it <strong>TICKER.html</strong> → paste code → Commit changes.</div></div>
-      <div><div class="step-num">03</div><div class="step-title">Add a Card Here</div><div class="step-body">Edit <strong>index.html</strong> — find the STOCKS array in the script, add one object with your ticker data. The card and table row auto-generate.</div></div>
-      <div><div class="step-num">04</div><div class="step-title">Done — It's Live!</div><div class="step-body">GitHub Pages auto-deploys in ~60 seconds. Your card appears on the homepage linked directly to the new report. No build step needed.</div></div>
+  <div class="hero-grid">
+    <div class="hero-card">
+      <h2>Know the Risk. Make the Right Call.</h2>
+      <p>Deep-dive risk reports covering valuation, financial health, growth execution, and analyst consensus. Click any stock in the sidebar to open its full 2-page report.</p>
+      <div class="stats-row">
+        <div class="stat"><span class="stat-v">32</span><span class="stat-l">Stocks</span></div>
+        <div class="stat"><span class="stat-v" style="color:var(--green)">24</span><span class="stat-l">Buy / Str Buy</span></div>
+        <div class="stat"><span class="stat-v" style="color:var(--amber)">7</span><span class="stat-l">Hold</span></div>
+        <div class="stat"><span class="stat-v" style="color:var(--red)">1</span><span class="stat-l">Sell</span></div>
+        <div class="stat"><span class="stat-v">49.2</span><span class="stat-l">Avg Risk</span></div>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div class="sec-label">Next Big Events</div>
+      <div style="font-family:var(--mono);font-size:11px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--accent)">Apr 29</span><span style="color:#fff;font-weight:600">MSFT · GOOGL · META · AMZN</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--accent)">May 1</span><span style="color:var(--text)">XOM · CVX earnings</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--accent)">May 20</span><span style="color:var(--text)">NVDA — most watched</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--accent)">May 28</span><span style="color:var(--text)">COST — retail bellwether</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--accent)">Jun 4</span><span style="color:var(--text)">MRVL — AI interconnect</span></div>
+      </div>
     </div>
   </div>
 
+  <div class="section-hdr">
+    <span class="sec-label">📈 Market Snapshot · Apr 25, 2026</span>
+    <span class="sec-pill">Real-time estimates</span>
+  </div>
+  <div class="mkt-grid">
+    <div class="mkt-card mc-g"><div class="mc-lbl">S&P 500</div><div class="mc-v">7,165</div><span class="mc-chg up">▲ +0.80%</span></div>
+    <div class="mkt-card mc-g"><div class="mc-lbl">NASDAQ</div><div class="mc-v">24,836</div><span class="mc-chg up">▲ +1.63%</span></div>
+    <div class="mkt-card mc-r"><div class="mc-lbl">Dow Jones</div><div class="mc-v">49,231</div><span class="mc-chg dn">▼ -0.16%</span></div>
+    <div class="mkt-card mc-a"><div class="mc-lbl">VIX</div><div class="mc-v">18.71</div><span class="mc-chg dn">▼ -3.11%</span></div>
+    <div class="mkt-card mc-a"><div class="mc-lbl">10-Yr Yield</div><div class="mc-v">4.31%</div><span class="mc-chg dn">▼ -2bp</span></div>
+    <div class="mkt-card mc-g"><div class="mc-lbl">Crude WTI</div><div class="mc-v">$94.40</div><span class="mc-chg dn">▼ -1.51%</span></div>
+    <div class="mkt-card mc-g"><div class="mc-lbl">Gold</div><div class="mc-v">$4,740</div><span class="mc-chg up">▲ +0.36%</span></div>
+    <div class="mkt-card mc-a"><div class="mc-lbl">BTC</div><div class="mc-v">$77,298</div><span class="mc-chg dn">▼ -0.44%</span></div>
+    <div class="mkt-card mc-g"><div class="mc-lbl">USD Index</div><div class="mc-v">101.4</div><span class="mc-chg dn">▼ -0.3%</span></div>
+    <div class="mkt-card mc-g"><div class="mc-lbl">Russell 2K</div><div class="mc-v">2,787</div><span class="mc-chg up">▲ +0.43%</span></div>
+  </div>
+
+  <div class="section-hdr">
+    <span class="sec-label">📁 All Reports — Click to Open</span>
+    <span class="sec-pill">11 covered · click sidebar for full report</span>
+  </div>
+  <div class="stocks-grid" id="home-cards"></div>
+
+  <div class="section-hdr" style="margin-top:8px">
+    <span class="sec-label">⚙️ How to Add More Stocks</span>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="steps-grid">
+      <div class="step"><div class="step-n">01</div><div class="step-t">Generate Report</div><div class="step-b">Ask Claude to build a risk report for a new ticker using the same format.</div></div>
+      <div class="step"><div class="step-n">02</div><div class="step-t">Add Data Object</div><div class="step-b">Copy a stock data block in the JS STOCKS array and fill in the new ticker's data.</div></div>
+      <div class="step"><div class="step-n">03</div><div class="step-t">Add Sidebar Link</div><div class="step-b">Add an sb-item in the sidebar HTML pointing to your new stock's page ID.</div></div>
+      <div class="step"><div class="step-n">04</div><div class="step-t">Commit & Done</div><div class="step-b">GitHub Pages auto-deploys in ~1 min. Your new stock appears everywhere instantly.</div></div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">➕ Add a Stock Now</button>
+  </div>
+</div>
+
+<!-- ══════════════ MARKET OVERVIEW ══════════════ -->
+<div class="page" id="page-market">
+  <div class="page-title">🌍 Full Market Overview</div>
+  <div class="page-sub">32 stocks · 11 sectors · All compiled in one view</div>
+
+  <div class="section-hdr"><span class="sec-label">🟩 Portfolio Heatmap — Today's Moves</span></div>
+  <div class="heatmap" id="heatmap"></div>
+
+  <div class="section-hdr"><span class="sec-label">✨ Magnificent 7 At-a-Glance</span></div>
+  <div class="mag7-row" id="mag7"></div>
+
+  <div class="ov-grid">
+    <div class="ov-col">
+      <div class="card">
+        <div class="sec-label" style="margin-bottom:12px">Sector YTD Performance</div>
+        <div id="sec-perf"></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)"><span class="sec-label">All 32 Stocks — Master Table</span></div>
+        <table class="watch-table" id="master-table-mkt">
+          <thead><tr><th>Ticker</th><th>Name</th><th>Sector</th><th>Price</th><th>P/E</th><th>Cap</th><th>Risk</th><th>Bar</th><th>Rating</th><th>Report</th></tr></thead>
+          <tbody id="master-tbody-mkt"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ov-col">
+      <div class="card">
+        <div class="sec-label" style="margin-bottom:10px">Portfolio Risk Distribution</div>
+        <div class="rd-grid">
+          <div class="rd" style="background:rgba(0,208,132,.08);border:1px solid rgba(0,208,132,.2)"><div class="rd-v" style="color:var(--green)">8</div><div class="rd-l" style="color:var(--green)">Low (&lt;40)</div></div>
+          <div class="rd" style="background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2)"><div class="rd-v" style="color:var(--amber)">18</div><div class="rd-l" style="color:var(--amber)">Moderate</div></div>
+          <div class="rd" style="background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.2)"><div class="rd-v" style="color:var(--red)">6</div><div class="rd-l" style="color:var(--red)">High (&gt;65)</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">Energy and TSLA carry highest risk. Financials and Tech Blue Chips are lowest.</div>
+      </div>
+      <div class="card">
+        <div class="sec-label" style="margin-bottom:10px">Top 5 Risk-Adjusted Picks</div>
+        <div id="top-picks"></div>
+      </div>
+      <div class="card">
+        <div class="sec-label" style="margin-bottom:10px">Upcoming Earnings</div>
+        <div id="earnings-cal"></div>
+      </div>
+      <div class="verdict-box">
+        <div class="vb-title">🎯 Market Outlook — Apr 2026</div>
+        <p class="vb-text">AI-driven tech earnings are beating across the board. Geopolitical risk from Iran has supercharged Energy. VIX at 18.71 signals fading fear. Mag 7 remain the engine of index returns with sector rotation into Financials and Energy real. Gold at ATH reflects macro uncertainty. Weighted average risk score: <strong style="color:var(--amber)">49.2/100</strong> — moderate, with asymmetric upside in beaten-down names.</p>
+        <div class="vb-tags">
+          <span class="vtag vtag-g">AI Supercycle</span><span class="vtag vtag-g">Cloud Acceleration</span>
+          <span class="vtag vtag-a">Iran Risk</span><span class="vtag vtag-a">High Capex</span>
+          <span class="vtag vtag-r">TSLA Execution Gap</span><span class="vtag vtag-g">JPM Record Trading</span>
+          <span class="vtag vtag-a">Fed Rate Hold</span><span class="vtag vtag-g">Semis Re-Accelerating</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ TABLE ══════════════ -->
+<div class="page" id="page-table">
+  <div class="page-title">📋 All Stocks Comparison Table</div>
+  <div class="page-sub">Quick side-by-side view of all 32 covered stocks</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="watch-table">
+      <thead><tr><th>Ticker</th><th>Company</th><th>Sector</th><th>Price</th><th>52-Wk Δ</th><th>P/E</th><th>Mkt Cap</th><th>Rating</th><th>Risk</th><th>Risk Bar</th><th>Report</th></tr></thead>
+      <tbody id="all-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ SECTORS ══════════════ -->
+<div class="page" id="page-sectors">
+  <div class="page-title">🏭 Sector Deep Dives</div>
+  <div class="page-sub">2–3 top stocks per S&P 500 sector · Click a tab to navigate</div>
+  <div class="sec-tabs" id="sec-tabs"></div>
+  <div id="sec-panels"></div>
+</div>
+
+<!-- ══════════════ STOCK DETAIL PAGES ══════════════ -->
+<div id="stock-pages"></div>
+
+</div><!-- end main -->
+</div><!-- end app -->
+
+<!-- ADD STOCK MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h3>➕ Add a New Stock Report</h3>
+    <p>Fill in the stock details below. This will generate a placeholder card. To add full report data, update the STOCKS array in the HTML file with the new data object.</p>
+    <label>Ticker Symbol</label>
+    <input id="new-ticker" placeholder="e.g. AMD" style="text-transform:uppercase">
+    <label>Company Name</label>
+    <input id="new-name" placeholder="e.g. Advanced Micro Devices">
+    <label>Sector</label>
+    <input id="new-sector" placeholder="e.g. Semiconductors · AI">
+    <label>Current Price</label>
+    <input id="new-price" placeholder="e.g. $277.70">
+    <label>Risk Score (0–100)</label>
+    <input id="new-risk" type="number" min="0" max="100" placeholder="e.g. 55">
+    <label>Analyst Rating</label>
+    <select id="new-rating"><option>STRONG BUY</option><option>BUY</option><option>HOLD</option><option>SELL</option></select>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addStock()">Add Stock Card</button>
+    </div>
+  </div>
 </div>
 
 <!-- FOOTER -->
-<footer>
-  <div class="footer-left">
-    <strong style="color:var(--text)">STOCK RISK TRACKER</strong> by Sonyboy30 · Powered by Claude AI<br>
-    Data: SEC filings, StockAnalysis, TradingView, Yahoo Finance · Updated Apr 26, 2026<br>
-    ⚠ Informational only. Not investment advice. Not a registered investment adviser.
-  </div>
-  <div class="footer-right">
-    <a class="footer-link" href="Stock.html">MSFT·GOOGL·AMZN</a>
-    <a class="footer-link" href="sectors.html">Sector Hub</a>
-    <a class="footer-link" href="MRVL.html">MRVL</a>
-    <a class="footer-link" href="https://github.com/Sonyboy30/Claude-Stock-Tracker" target="_blank">GitHub</a>
-  </div>
-</footer>
-
-<!-- ADD STOCK MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h3>➕ Add a New Stock Report</h3>
-    <p>Follow these steps to add any stock to your tracker in under 5 minutes.</p>
-    <div class="modal-steps">
-      <div class="modal-step">
-        <div class="ms-num">1</div>
-        <div class="ms-text"><strong>Ask Claude</strong> — Open a new Claude chat and say:<br>
-        <span class="ms-code">"Build a dark HTML risk report for [TICKER] matching the Stock Risk Tracker design at sonyboy30.github.io/Claude-Stock-Tracker"</span></div>
-      </div>
-      <div class="modal-step">
-        <div class="ms-num">2</div>
-        <div class="ms-text"><strong>Save the file</strong> — In your GitHub repo, click "Add file" → "Create new file" → name it <span class="ms-code">TICKER.html</span> → paste Claude's output → Commit.</div>
-      </div>
-      <div class="modal-step">
-        <div class="ms-num">3</div>
-        <div class="ms-text"><strong>Add to index.html</strong> — Edit this file, find the <span class="ms-code">STOCKS</span> array near the bottom, copy one entry and update the values for your new ticker.</div>
-      </div>
-      <div class="modal-step">
-        <div class="ms-num">4</div>
-        <div class="ms-text"><strong>Add to sectors.html</strong> — Find the matching sector in <span class="ms-code">SECTORS</span> array and add the stock there too. Both pages auto-update from data.</div>
-      </div>
-    </div>
-    <div class="modal-cta">
-      <a class="modal-btn modal-btn-primary" href="https://claude.ai" target="_blank">Open Claude AI →</a>
-      <a class="modal-btn modal-btn-secondary" href="https://github.com/Sonyboy30/Claude-Stock-Tracker" target="_blank">Open GitHub Repo</a>
-      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
-    </div>
-  </div>
+<div class="pg-footer">
+  STOCK RISK TRACKER · by Sonyboy30 · Powered by Claude AI · Data: SEC, StockAnalysis, TradingView, Yahoo Finance, CNBC · Apr 25, 2026 · ⚠ For informational purposes only. Not investment advice.
 </div>
 
 <script>
-// ── DATE ──
-document.getElementById('nav-date').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-
-// ══════════════════════════════════════════════════
-// ★ STOCKS DATA ARRAY — ADD NEW STOCKS HERE ★
-// To add a stock: copy one object, update all fields,
-// set href to the filename (e.g. 'NVDA.html'),
-// and set tabId if it links to a tabbed report (or null).
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
 const STOCKS = [
-  {
-    sym:'MSFT', name:'Microsoft Corporation', sector:'Cloud · AI · Enterprise',
-    price:'$415.75', chg:'+2.04%', chgUp:true, wkChg:'+20.1%',
-    pe:'26.5x', cap:'$3.08T', fcf:'$77.4B',
-    risk:38, riskColor:'#00d084', riskLabel:'LOW–MOD',
-    rating:'STRONG BUY', ratingClass:'rating-sb',
-    cardClass:'sc-blue', badgeClass:'badge-msft',
-    href:'Stock.html', tabId:'msft',
-    m1:'P/E', m1v:'26.5x', m2:'Mkt Cap', m2v:'$3.08T', m3:'FCF', m3v:'$77.4B',
-  },
-  {
-    sym:'GOOGL', name:'Alphabet Inc.', sector:'Search · Cloud · AI',
-    price:'$344.12', chg:'+1.71%', chgUp:true, wkChg:'+124.3%',
-    pe:'31.6x', cap:'$4.08T', fcf:'$72B',
-    risk:45, riskColor:'#ffb547', riskLabel:'MODERATE',
-    rating:'STRONG BUY', ratingClass:'rating-sb',
-    cardClass:'sc-blue', badgeClass:'badge-googl',
-    href:'Stock.html', tabId:'googl',
-    m1:'P/E', m1v:'31.6x', m2:'Mkt Cap', m2v:'$4.08T', m3:'Cloud Gr', m3v:'+48%',
-  },
-  {
-    sym:'AMZN', name:'Amazon.com Inc.', sector:'E-Commerce · AWS · Advertising',
-    price:'$255.36', chg:'+0.23%', chgUp:true, wkChg:'+43%',
-    pe:'35.6x', cap:'$2.75T', fcf:'$14.9B',
-    risk:52, riskColor:'#ffb547', riskLabel:'MOD-HIGH',
-    rating:'STRONG BUY', ratingClass:'rating-sb',
-    cardClass:'sc-orange', badgeClass:'badge-amzn',
-    href:'Stock.html', tabId:'amzn',
-    m1:'P/E', m1v:'35.6x', m2:'Mkt Cap', m2v:'$2.75T', m3:'AWS Gr', m3v:'+24%',
-  },
-  {
-    sym:'NVDA', name:'NVIDIA Corporation', sector:'AI Chips · Data Center',
-    price:'$208.27', chg:'+4.74%', chgUp:true, wkChg:'+~50%',
-    pe:'40.7x', cap:'~$2.5T', fcf:'$60B',
-    risk:48, riskColor:'#ffb547', riskLabel:'MODERATE',
-    rating:'STRONG BUY', ratingClass:'rating-sb',
-    cardClass:'sc-green', badgeClass:'badge-nvda',
-    href:'NVDA.html', tabId:null,
-    m1:'P/E', m1v:'40.7x', m2:'Mkt Cap', m2v:'~$2.5T', m3:'Rev Gr', m3v:'+65%',
-  },
-  {
-    sym:'TSLA', name:'Tesla Inc.', sector:'EVs · Energy · Robotaxi',
-    price:'$388.73', chg:'+0.82%', chgUp:true, wkChg:'+49.8%',
-    pe:'346x', cap:'$1.46T', fcf:'$7.0B',
-    risk:78, riskColor:'#ff4d6d', riskLabel:'HIGH',
-    rating:'HOLD', ratingClass:'rating-h',
-    cardClass:'sc-red', badgeClass:'badge-tsla',
-    href:'TSLA.html', tabId:null,
-    m1:'P/E', m1v:'346x', m2:'Mkt Cap', m2v:'$1.46T', m3:'Op Mgn', m3v:'4.9%',
-  },
-  {
-    sym:'AAPL', name:'Apple Inc.', sector:'Consumer Tech · Services',
-    price:'$270.90', chg:'+0.87%', chgUp:true, wkChg:'+~14%',
-    pe:'34.3x', cap:'$4.09T', fcf:'$108B',
-    risk:42, riskColor:'#ffb547', riskLabel:'MODERATE',
-    rating:'STRONG BUY', ratingClass:'rating-sb',
-    cardClass:'sc-teal', badgeClass:'badge-aapl',
-    href:'AAPL.html', tabId:null,
-    m1:'P/E', m1v:'34.3x', m2:'Mkt Cap', m2v:'$4.09T', m3:'Div Yld', m3v:'0.56%',
-  },
-  {
-    sym:'META', name:'Meta Platforms Inc.', sector:'Social Media · AI · AR/VR',
-    price:'$676.73', chg:'+2.41%', chgUp:true, wkChg:'+39.3%',
-    pe:'28.5x', cap:'$1.71T', fcf:'$46B',
-    risk:35, riskColor:'#00d084', riskLabel:'LOW–MOD',
-    rating:'STRONG BUY', ratingClass:'rating-sb',
-    cardClass:'sc-blue', badgeClass:'badge-meta',
-    href:'META.html', tabId:null,
-    m1:'P/E', m1v:'28.5x', m2:'Mkt Cap', m2v:'$1.71T', m3:'Op Mgn', m3v:'41.4%',
-  },
-  {
-    sym:'MRVL', name:'Marvell Technology', sector:'AI Semiconductors · Networking',
-    price:'$147.84', chg:'+4.74%', chgUp:true, wkChg:'+185.9%',
-    pe:'57.1x', cap:'$122B', fcf:'$1.4B',
-    risk:58, riskColor:'#ffb547', riskLabel:'MOD-HIGH',
-    rating:'COND. BUY', ratingClass:'rating-b',
-    cardClass:'sc-purple', badgeClass:'badge-mrvl',
-    href:'MRVL.html', tabId:null,
-    m1:'P/E', m1v:'57.1x', m2:'Mkt Cap', m2v:'$122B', m3:'Rev Gr', m3v:'+42%',
-  },
-  // ── ADD NEW STOCKS BELOW THIS LINE ──
-  // {
-  //   sym:'TICKER', name:'Company Name', sector:'Sector · Sub-sector',
-  //   price:'$000.00', chg:'+0.00%', chgUp:true, wkChg:'+0%',
-  //   pe:'00x', cap:'$0B', fcf:'$0B',
-  //   risk:50, riskColor:'#ffb547', riskLabel:'MODERATE',
-  //   rating:'BUY', ratingClass:'rating-b',
-  //   cardClass:'sc-yellow', badgeClass:'badge-custom',
-  //   href:'TICKER.html', tabId:null,
-  //   m1:'P/E', m1v:'00x', m2:'Mkt Cap', m2v:'$0B', m3:'Rev Gr', m3v:'+0%',
-  // },
+  {id:'msft',sym:'MSFT',name:'Microsoft Corporation',sector:'Technology · Cloud · AI',price:'$415.75',chg:'+2.04%',wk52:'+20.1%',pe:'26.5x',cap:'$3.08T',risk:38,rating:'STR BUY',color:'#00bcf0',
+   kpis:[{n:'P/E (TTM)',v:'26.5x',d:'▼ vs 33x avg',dc:'da'},{n:'EV/EBITDA',v:'18.4x',d:'↓ Compressing',dc:'dg'},{n:'Rev Growth',v:'+18%',d:'▲ Q1 FY26 BEAT',dc:'dg'},{n:'Free Cash Flow',v:'$77.4B',d:'LTM · +12%',dc:'dg'},{n:'D/E Ratio',v:'0.32',d:'▼ Low leverage',dc:'dg'},{n:'Short Int.',v:'1.09%',d:'● Minimal',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'26.5x',b:'Sector avg 33x; 30% below own 10-yr median',s:'ATTRACTIVE',sc:'g'},{l:'P/S Ratio',v:'10.7x',b:'Justified by 68%+ gross margins',s:'REASONABLE',sc:'g'},{l:'EV/Revenue',v:'10.4x',b:'In-line for high-margin cloud leader',s:'FAIR VALUE',sc:'g'},{l:'PEG Ratio',v:'1.53',b:'PEG >1 signals moderate premium',s:'SLIGHT PREMIUM',sc:'a'},{l:'P/FCF',v:'41.7x',b:'Elevated; capex rising on AI infra build',s:'WATCH CAPEX',sc:'a'},{l:'EV/EBITDA',v:'18.4x',b:'Down from 22x — improving attractiveness',s:'COMPRESSING',sc:'g'}],
+   finCards:[{l:'Current Ratio',v:'1.39',b:'Adequate; offset by massive FCF',s:'MONITOR',sc:'a'},{l:'Debt/Equity',v:'0.32',b:'Conservative for $3T company',s:'HEALTHY',sc:'g'},{l:'Interest Cov.',v:'>40x',b:'Operating income $128.5B vs ~$3B interest',s:'EXCELLENT',sc:'g'},{l:'Cash',v:'$89.5B',b:'Net debt manageable at -$33.8B',s:'FORTRESS',sc:'g'},{l:'Capex/Rev',v:'27.2%',b:'$83B capex FY26; AI data center surge',s:'RISING BURN',sc:'a'},{l:'FCF Yield',v:'2.5%',b:'$77.4B FCF on $3.08T cap',s:'SOLID GEN',sc:'g'}],
+   growCards:[{l:'Rev Growth',v:'+15%',b:'FY25: $281.7B; cloud +27% (Azure +33%)',s:'ACCELERATING',sc:'g'},{l:'EPS Growth',v:'+16%',b:'FY25 EPS $13.64; op leverage intact',s:'STRONG',sc:'g'},{l:'Cloud Growth',v:'+26%',b:'Q1 FY26 cloud $49.1B; RPO +51% to $392B',s:'BEAT',sc:'g'},{l:'Op Margin',v:'46.7%',b:'Up from 44.6%; expanding',s:'EXPANDING',sc:'g'},{l:'R&D % Rev',v:'13.8%',b:'~$39B/yr; necessary for AI moat',s:'HIGH BUT OK',sc:'a'},{l:'Guidance',v:'BEAT',b:'Q1 FY26: Rev $77.7B — beat consensus',s:'CONSISTENT',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:13,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:11,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:14,max:30,col:'#ffb547'}],
+   qrows:[{q:'Q2 FY25',rev:'$69.6B',rvs:'—',eps:'$3.23',est:'$3.11E',beat:true,gm:'69.4%',cloud:'$40.9B',yoy:'+12%'},{q:'Q3 FY25',rev:'$70.1B',rvs:'+$0.3B',eps:'$3.46',est:'$3.22E',beat:true,gm:'68.7%',cloud:'$42.4B',yoy:'+13%'},{q:'Q4 FY25',rev:'$76.4B',rvs:'+$0.4B',eps:'$3.65',est:'$3.10E',beat:true,gm:'69.6%',cloud:'$46.7B',yoy:'+18%'},{q:'Q1 FY26 ★',rev:'$77.7B',rvs:'+$1.4B',eps:'$3.72',est:'$3.41E',beat:true,gm:'70.1%',cloud:'$49.1B',yoy:'+18%',hl:true},{q:'Q2 FY26E',rev:'$80.3B◈',rvs:'—',eps:'$3.40◈',est:'—',beat:null,gm:'~70%◈',cloud:'~$52B◈',yoy:'~16%◈'}],
+   update:{hd:'Q1 FY2026 (Oct 29, 2025)',hl:'Microsoft Beats on Revenue & EPS; Azure Accelerates to 33% Growth',bullets:['Revenue of $77.7B (+18% YoY) beat consensus — Intelligent Cloud hit $28.3B, up 22%; Azure grew 33%.','Non-GAAP EPS of $4.13 (+23% YoY) topped estimates by $0.72; operating income $38.0B (+24%).','Commercial RPO surged to $392B (+51%) — AI business ARR >$13B.'],quote:'"Our planet-scale cloud and AI factory is driving broad diffusion and real-world impact" — Satya Nadella'},
+   cats:[{t:'Azure + AI Copilot Flywheel',b:'Azure growing 33% YoY; Copilot across M365 creates sticky contracts. AI ARR >$13B.',imp:'HIGH'},{t:'$392B Commercial RPO Backlog',b:'Record RPO (+51%) gives multi-year revenue visibility rarely seen at this scale.',imp:'HIGH'},{t:'Margin Expansion Continues',b:'Op margin at 46.7% — rising on mix shift to cloud.',imp:'MED'},{t:'OpenAI & Copilot Pricing',b:'$99/mo AI bundle; premium pricing drives ARPU across 400M+ Office subscribers.',imp:'MED'},{t:'Valuation Re-Rating Potential',b:'Trading 30% below 10-yr P/E median. Multiple expansion = 30%+ upside.',imp:'MED'}],
+   risks:[{t:'Capex Surge Compresses FCF',b:'$83B capex rising. Pressures near-term FCF yield to ~2.5%.',imp:'HIGH'},{t:'AI Workforce Restructuring',b:'Buyout program Apr 2026. Execution risk and morale impact.',imp:'MED'},{t:'AWS / Google Cloud Rivalry',b:'Azure ~25% share; AWS ~31%. Competitive pricing could constrain margins.',imp:'MED'},{t:'Regulatory / Antitrust',b:'EU/US investigations into Teams bundling and AI dominance.',imp:'MED'},{t:'OpenAI Dependency',b:'Equity stake creates mark-to-market volatility in GAAP results.',imp:'LOW'}],
+   verdict:'Microsoft is arguably the best-positioned technology megacap entering the AI-native era. Azure\'s 33% growth, $392B commercial backlog, and >$13B AI ARR represent a multi-year compounding engine. Valuation has de-rated to 26.5x — 30% below its own 10-year median — creating an unusually attractive entry point.',
+   consensus:'STRONG BUY',pt:{bear:'$380',base:'$583',bull:'$650'},analysts:'35 analysts · Avg PT $583.21 · Next: Apr 29',rating_active:'rs-sb'},
+
+  {id:'aapl',sym:'AAPL',name:'Apple Inc.',sector:'Consumer Tech · Services · Silicon',price:'$270.90',chg:'+0.87%',wk52:'+14%',pe:'34.3x',cap:'$4.09T',risk:42,rating:'STR BUY',color:'#d1d5db',
+   kpis:[{n:'P/E (TTM)',v:'34.3x',d:'▲ Above 10-yr avg',dc:'da'},{n:'EV/EBITDA',v:'26.1x',d:'◈ Estimate',dc:'da'},{n:'Rev Growth',v:'+10.1%',d:'Q1 FY26',dc:'dg'},{n:'Services Rev',v:'+14%',d:'Fastest growing',dc:'dg'},{n:'Gross Margin',v:'47.3%',d:'Q1 FY26 record',dc:'dg'},{n:'Div Yield',v:'0.56%',d:'Buyback machine',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'34.3x',b:'Slightly above own avg 30x; services mix justifies',s:'SLIGHT PREMIUM',sc:'a'},{l:'P/S Ratio',v:'8.9x',b:'Premium warranted by services gross margins 75%+',s:'JUSTIFIED',sc:'g'},{l:'EV/EBITDA',v:'26.1x',b:'In-line for hardware-plus-services hybrid',s:'FAIR VALUE',sc:'g'},{l:'PEG Ratio',v:'1.6',b:'EPS growing ~25%; PEG acceptable',s:'MODERATE',sc:'a'},{l:'P/FCF',v:'33x',b:'FCF yield ~3% — better than pure tech',s:'DECENT',sc:'g'},{l:'Mkt Cap',v:'$4.09T',b:'Largest company by market cap globally',s:'MEGA CAP',sc:'g'}],
+   finCards:[{l:'Current Ratio',v:'1.36',b:'Apple runs lean; offset by $85B+ FCF/yr',s:'ADEQUATE',sc:'a'},{l:'Net Cash',v:'~$50B',b:'Net cash positive; returning via buybacks',s:'FORTRESS',sc:'g'},{l:'Interest Cov.',v:'>30x',b:'Minimal debt; strong earnings coverage',s:'EXCELLENT',sc:'g'},{l:'Gross Margin',v:'47.3%',b:'Q1 FY26 record — services mix driving expansion',s:'RECORD',sc:'g'},{l:'Capex/Rev',v:'~3%',b:'Asset-light model; outsources manufacturing',s:'EFFICIENT',sc:'g'},{l:'FCF',v:'$90B+',b:'LTM FCF — returning nearly all to shareholders',s:'MASSIVE',sc:'g'}],
+   growCards:[{l:'Rev Growth',v:'+10.1%',b:'Q1 FY26; iPhone cycle + services acceleration',s:'SOLID',sc:'g'},{l:'EPS Growth',v:'+25.4%',b:'Q1 FY26; buybacks + margin expansion amplify',s:'STRONG',sc:'g'},{l:'Services',v:'+14%',b:'App Store, iCloud, Apple TV+ — highest margin segment',s:'KEY DRIVER',sc:'g'},{l:'iPhone Rev',v:'+1%',b:'Stable; AI-driven upgrade cycle building',s:'WATCH',sc:'a'},{l:'R&D % Rev',v:'~8%',b:'Apple Intelligence and silicon investment',s:'GROWING',sc:'a'},{l:'Guidance',v:'BEAT',b:'Q1 FY26: Rev and EPS beat on supply recovery',s:'CONSISTENT',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:15,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:9,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:18,max:30,col:'#ffb547'}],
+   qrows:[{q:'Q2 FY25',rev:'$95.4B',rvs:'+$1.2B',eps:'$1.65',est:'$1.60E',beat:true,gm:'46.9%',cloud:'Svc $26.6B',yoy:'+5%'},{q:'Q3 FY25',rev:'$85.8B',rvs:'+$0.8B',eps:'$1.40',est:'$1.35E',beat:true,gm:'46.3%',cloud:'Svc $24.2B',yoy:'+5%'},{q:'Q4 FY25',rev:'$94.9B',rvs:'+$1.1B',eps:'$1.64',est:'$1.57E',beat:true,gm:'46.9%',cloud:'Svc $26.3B',yoy:'+6%'},{q:'Q1 FY26 ★',rev:'$124.3B',rvs:'+$2.1B',eps:'$2.40',est:'$2.27E',beat:true,gm:'47.3%',cloud:'Svc $26.3B',yoy:'+4%',hl:true},{q:'Q2 FY26E',rev:'$89B◈',rvs:'—',eps:'$1.49◈',est:'—',beat:null,gm:'~47%◈',cloud:'Svc $27B◈',yoy:'~5%◈'}],
+   update:{hd:'Q1 FY2026 (Jan 29, 2026)',hl:'Apple Delivers Record Q1; Tim Cook Announces CEO Transition to John Ternus (Sep 1, 2026)',bullets:['Revenue $124.3B (+4% YoY) beat; Services hit record $26.3B (+14%) — highest-ever quarter.','EPS $2.40 (+25.4%) — massive beat driven by buybacks reducing share count by 3.7% YoY.','Tim Cook to become Executive Chairman Sep 1; John Ternus (hardware chief) to succeed as CEO.'],quote:'"Services, Mac, iPad and wearables all set new Q1 records." — Tim Cook'},
+   cats:[{t:'Services Flywheel',b:'$26.3B/quarter growing 14%; 75%+ gross margins are transforming Apple\'s profit mix.',imp:'HIGH'},{t:'Apple Intelligence AI Cycle',b:'AI-native features driving hardware upgrade cycle; Siri overhaul boosts ecosystem lock-in.',imp:'HIGH'},{t:'CEO Transition — Ternus Continuity',b:'Ternus led Apple Silicon; continuity in hardware strategy while Cook stays as chairman.',imp:'MED'},{t:'$90B+ FCF Returns',b:'Returning nearly all FCF via buybacks; reducing share count accelerates EPS growth.',imp:'MED'},{t:'India Manufacturing',b:'Diversifying supply chain to India reduces China risk and tariff exposure.',imp:'MED'}],
+   risks:[{t:'AI Behind Schedule',b:'Siri overhaul delayed; Google, Samsung gaining ground on on-device AI.',imp:'HIGH'},{t:'China Revenue Risk',b:'Greater China ~17% of revenue; tariffs and Huawei competition are headwinds.',imp:'HIGH'},{t:'Services Regulatory Risk',b:'EU DMA forcing App Store changes; reduces take-rate and revenue.',imp:'MED'},{t:'CEO Transition Uncertainty',b:'Any hint of strategic shift under Ternus could trigger re-rating.',imp:'MED'},{t:'Hardware Saturation',b:'iPhone upgrade cycles extending. Services must carry growth baton.',imp:'LOW'}],
+   verdict:'Apple remains the world\'s most valuable company for good reason: $90B+ FCF, 47%+ gross margins, and a services business accelerating at 14%. The CEO transition to John Ternus is an evolution, not a revolution. The key risk is AI execution — Apple needs Apple Intelligence to drive the next hardware upgrade supercycle. At 34x P/E, the stock requires execution but is fairly priced for what you get.',
+   consensus:'STRONG BUY',pt:{bear:'$200',base:'$275',bull:'$340'},analysts:'38 analysts · Avg PT ~$232 raised to ~$275 · Next: Apr 29◈',rating_active:'rs-sb'},
+
+  {id:'nvda',sym:'NVDA',name:'NVIDIA Corporation',sector:'AI Chips · Data Center · Graphics',price:'$208.27',chg:'+4.74%',wk52:'+~50%',pe:'40.7x',cap:'~$2.5T',risk:48,rating:'STR BUY',color:'#76b900',
+   kpis:[{n:'P/E (TTM)',v:'40.7x',d:'↓ From 65x avg',dc:'dg'},{n:'Fwd P/E',v:'24.5x',d:'Compelling fwd',dc:'dg'},{n:'Rev Growth',v:'+65%',d:'FY26 record',dc:'dg'},{n:'Data Center',v:'$115B',d:'FY26 segment',dc:'dg'},{n:'Op Margin',v:'61.1%',d:'Industry-leading',dc:'dg'},{n:'PT (avg)',v:'$266',d:'+28% upside',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'40.7x',b:'Below 20-yr avg 55x; actually cheap for growth',s:'ATTRACTIVE',sc:'g'},{l:'Fwd P/E',v:'24.5x',b:'At 24.5x for 60%+ revenue growth — very cheap PEG',s:'COMPELLING',sc:'g'},{l:'PEG Ratio',v:'0.68',b:'Sub-1 PEG for AI chip leader — outstanding',s:'UNDERVALUED',sc:'g'},{l:'EV/Revenue',v:'12x',b:'Justified by 60%+ operating margins',s:'FAIR',sc:'g'},{l:'P/FCF',v:'42x',b:'FCF growing rapidly; capex-light model',s:'REASONABLE',sc:'a'},{l:'EV/EBITDA',v:'27x◈',b:'Premium warranted by near-monopoly position',s:'PREMIUM',sc:'a'}],
+   finCards:[{l:'Cash',v:'$34.8B',b:'Net cash $23.8B; zero financial risk',s:'STRONG',sc:'g'},{l:'Debt/Equity',v:'0.51',b:'Low leverage; debt used for R&D-heavy balance',s:'MANAGEABLE',sc:'g'},{l:'Op Margin',v:'61.1%',b:'FY26 record; GPU monopoly pricing power',s:'EXCEPTIONAL',sc:'g'},{l:'Gross Margin',v:'74.6%',b:'FY26; Blackwell ramp maintaining margins',s:'RECORD',sc:'g'},{l:'FCF',v:'$60B+',b:'LTM FCF; converting earnings to cash efficiently',s:'EXCELLENT',sc:'g'},{l:'Current Ratio',v:'4.2',b:'Extremely liquid balance sheet',s:'VERY STRONG',sc:'g'}],
+   growCards:[{l:'Rev Growth',v:'+65%',b:'FY26 $215.9B — fastest growth at this scale ever',s:'HISTORIC',sc:'g'},{l:'EPS Growth',v:'+111%',b:'GAAP EPS $2.94 FY26 vs $1.30 prior year',s:'EXPLOSIVE',sc:'g'},{l:'Data Center',v:'+93%',b:'Q4 FY26 $35.6B data center alone',s:'DOMINANT',sc:'g'},{l:'Blackwell Ramp',v:'On track',b:'Blackwell in mass production; GB300 announced for 2026',s:'EXECUTION',sc:'g'},{l:'CAGR Outlook',v:'>60%',b:'Analyst estimate to 2028 on AI infra demand',s:'DURABLE',sc:'g'},{l:'China Risk',v:'H20 ban',b:'H20 chips banned; ~$5-7B revenue lost annually',s:'HEADWIND',sc:'a'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:14,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:10,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:24,max:30,col:'#ff4d6d'}],
+   qrows:[{q:'Q3 FY26',rev:'$35.1B',rvs:'+$2.1B',eps:'$0.78',est:'$0.72E',beat:true,gm:'74.6%',cloud:'DC $30.8B',yoy:'+94%'},{q:'Q4 FY26 ★',rev:'$44.1B',rvs:'+$4.1B',eps:'$0.89',est:'$0.78E',beat:true,gm:'73.5%',cloud:'DC $40.5B',yoy:'+78%',hl:true},{q:'Q1 FY27E',rev:'~$78B◈',rvs:'—',eps:'~$1.53◈',est:'—',beat:null,gm:'~73%◈',cloud:'DC ~$70B◈',yoy:'~65%◈'}],
+   update:{hd:'Q4 FY2026 (Feb 26, 2026) + FY27 Outlook',hl:'NVIDIA Posts Record Q4: Revenue $44.1B, +78% YoY — Blackwell Ramp Exceeds Targets',bullets:['Revenue $44.1B vs $40B est — data center segment alone hit $40.5B, up 78% YoY.','Non-GAAP EPS $0.89 beat $0.78 est by 14%; gross margin held at 73.5% despite Blackwell ramp costs.','Q1 FY27 guided at $78B — would be +77% YoY; analysts raised 2026 estimates to $350B+ annual revenue.'],quote:'"Demand for Blackwell is extraordinary." — Jensen Huang, CEO'},
+   cats:[{t:'>75% AI Training/Inference Share',b:'Mizuho estimates >75% market share in AI chips — near-monopoly with Blackwell moats.',imp:'HIGH'},{t:'Blackwell GB300 Launched',b:'Next-gen architecture announced for 2026; performance 4x over H100; pre-sold through 2027.',imp:'HIGH'},{t:'CUDA Ecosystem Lock-in',b:'12+ years of software ecosystem — switching cost to AMD/Intel measured in years, not months.',imp:'HIGH'},{t:'Physical AI & Robotics',b:'Isaac and Omniverse platforms position NVIDIA as the OS of physical AI / manufacturing.',imp:'MED'},{t:'Sovereign AI Demand',b:'Governments in Europe, Middle East and Asia buying NVIDIA clusters directly.',imp:'MED'}],
+   risks:[{t:'China H20 Export Ban',b:'$5-7B revenue/yr lost; Huawei Ascend chips filling gap in Chinese market.',imp:'HIGH'},{t:'Execution Risk on Blackwell Ramp',b:'GB300 complexity; yield issues at TSMC 4nm could delay shipments.',imp:'MED'},{t:'Customer Concentration',b:'Microsoft, Amazon, Google, Meta = majority of revenue; any capex pullback hurts.',imp:'MED'},{t:'AMD MI300X Competition',b:'MI300X gaining enterprise traction; AMD stock up 7.58% today on AI momentum.',imp:'MED'},{t:'Valuation Still Premium',b:'At 40x TTM earnings, any miss punishes severely given high expectations.',imp:'LOW'}],
+   verdict:'NVIDIA is the infrastructure of the AI era — full stop. Revenue of $44B/quarter growing 78% with 73%+ gross margins at this scale is historically unprecedented. The Blackwell ramp is on track, sovereign AI demand is exploding, and the CUDA moat remains insurmountable in the near term. The H20 ban is a headwind, but China was already declining as a share of revenue. At 24.5x forward earnings for 65%+ growth, this is the most compelling large-cap risk-reward in technology.',
+   consensus:'STRONG BUY',pt:{bear:'$120',base:'$266',bull:'$350'},analysts:'38 analysts · Avg PT $266.24 · Next: May 20',rating_active:'rs-sb'},
+
+  {id:'googl',sym:'GOOGL',name:'Alphabet Inc. (Class A)',sector:'Search · Cloud · AI · Advertising',price:'$344.12',chg:'+1.71%',wk52:'+124.3%',pe:'31.6x',cap:'$4.08T',risk:45,rating:'STR BUY',color:'#4285f4',
+   kpis:[{n:'P/E (TTM)',v:'31.6x',d:'▲ Above 3-yr avg',dc:'da'},{n:'EV/EBITDA',v:'27.1x',d:'◈ Rich vs sector',dc:'da'},{n:'Rev Growth',v:'+15%',d:'FY25 $402.8B',dc:'dg'},{n:'FCF (est)',v:'$72B◈',d:'LTM estimate',dc:'dg'},{n:'D/E Ratio',v:'0.16',d:'▼ Very low',dc:'dg'},{n:'Cloud Growth',v:'+48%',d:'Q4 2025',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'31.6x',b:'Above own 3-yr avg of 23x; re-rating on AI',s:'ABOVE HISTORY',sc:'a'},{l:'P/S Ratio',v:'10.1x',b:'Justified for 32.8% net margin platform',s:'REASONABLE',sc:'g'},{l:'EV/Revenue',v:'10.2x◈',b:'In-line for diversified tech at this scale',s:'FAIR VALUE',sc:'g'},{l:'PEG Ratio',v:'1.87',b:'Elevated; market pricing in strong growth',s:'PREMIUM',sc:'a'},{l:'P/FCF',v:'55.6x',b:'Capex spike ($75B+) compressing FCF yield',s:'WATCH CAPEX',sc:'a'},{l:'EV/EBITDA',v:'27.1x',b:'Above sector; reflects AI growth optionality',s:'ELEVATED',sc:'a'}],
+   finCards:[{l:'Current Ratio',v:'2.01',b:'Very healthy; above 2.0x threshold',s:'EXCELLENT',sc:'g'},{l:'D/E Ratio',v:'0.16',b:'Near-zero leverage; $110B+ net cash',s:'FORTRESS',sc:'g'},{l:'Interest Cov.',v:'>60x',b:'Virtually no debt burden',s:'EXCEPTIONAL',sc:'g'},{l:'Cash',v:'$110B+',b:'Massive net cash; funds buybacks + capex',s:'VERY STRONG',sc:'g'},{l:'Capex/Rev',v:'18.6%◈',b:'$175-185B planned 2026; depn accelerating',s:'RAPID RISE',sc:'a'},{l:'FCF Yield',v:'1.8%◈',b:'Compressed by capex; underlying power strong',s:'ADEQUATE',sc:'g'}],
+   growCards:[{l:'Rev Growth',v:'+15%',b:'FY25 $402.8B; broad-based double-digit',s:'STRONG',sc:'g'},{l:'EPS Growth',v:'+32%',b:'FY25 earnings $132.2B; EPS expanded 37.7%',s:'EXCEPTIONAL',sc:'g'},{l:'GCP Growth',v:'+48%',b:'Q4 2025: $17.7B; fastest since 2021',s:'ACCELERATING',sc:'g'},{l:'Op Margin',v:'34%',b:'Q1 2025: +2pp YoY; expanding',s:'EXPANDING',sc:'g'},{l:'R&D + Capex',v:'33%◈',b:'Combined % rev — rising sharply',s:'RISING RISK',sc:'r'},{l:'Guidance',v:'BEAT',b:'Q4 2025: Rev $113.9B vs $103.9B est',s:'CONSISTENT',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:20,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:9,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:16,max:30,col:'#ffb547'}],
+   qrows:[{q:'Q2 2024',rev:'$84.7B',rvs:'+$2.1B',eps:'$1.89',est:'$1.85E',beat:true,gm:'32% op',cloud:'$10.4B',yoy:'+14%'},{q:'Q3 2024',rev:'$88.3B',rvs:'+$1.2B',eps:'$2.12',est:'$1.85E',beat:true,gm:'33% op',cloud:'$11.4B',yoy:'+15%'},{q:'Q1 2025',rev:'$90.2B',rvs:'+$0.7B',eps:'$2.81',est:'$2.00E',beat:true,gm:'34% op',cloud:'$12.3B',yoy:'+12%'},{q:'Q2 2025',rev:'$96.4B',rvs:'+$1.5B',eps:'$2.29',est:'$2.18E',beat:true,gm:'33% op',cloud:'$13.3B',yoy:'+14%'},{q:'Q3 2025',rev:'$102.5B',rvs:'+$2.0B',eps:'$2.43',est:'$2.27E',beat:true,gm:'34% op',cloud:'$15.2B',yoy:'+15%'},{q:'Q4 2025 ★',rev:'$113.9B',rvs:'+$10B',eps:'$2.82',est:'$2.57E',beat:true,gm:'32% op',cloud:'$17.7B',yoy:'+14%',hl:true}],
+   update:{hd:'Q4 2025 (Feb 2026) + Q1 2026 Preview (Apr 29)',hl:'Alphabet Smashes Q4 Estimates; Cloud Hits 48% Growth — Fastest Since 2021',bullets:['Revenue $113.9B vs $103.9B est (+9.7% beat); EPS $2.82 vs $2.57 est (+9.7% beat) — massive double beat.','Google Cloud revenue surged to $17.7B (+48% YoY) — fastest pace of growth since 2021.','2026 capex guided at $175-185B (+60% vs 2025); depreciation to meaningfully increase — key Q1 risk.'],quote:'"Search saw continued strong growth, boosted by AI Overviews which now has 1.5 billion users" — Sundar Pichai'},
+   cats:[{t:'Google Cloud 48% Hypergrowth',b:'GCP acceleration to $17.7B/quarter. Backlog signals continued momentum.',imp:'HIGH'},{t:'AI Overviews (1.5B Users)',b:'Search integration at unprecedented scale creates structural moat.',imp:'HIGH'},{t:'Net Cash >$110B',b:'Zero leverage; funds buybacks, capex, and M&A internally.',imp:'MED'},{t:'YouTube & Subscription',b:'YouTube ads + subscriptions growing double-digits; 100M+ Premium subscribers.',imp:'MED'},{t:'Waymo Monetization',b:'Robotaxi expanding; potential spin-off represents unlocked value.',imp:'LOW'}],
+   risks:[{t:'DOJ Antitrust Remedy',b:'Chrome/Android divestiture possible; search default payments under threat.',imp:'HIGH'},{t:'$175-185B Capex 2026',b:'Depreciation accelerating 38%+; EPS could disappoint on strong revenue.',imp:'HIGH'},{t:'Search Disruption by AI',b:'ChatGPT, Perplexity challenge Search. Any share loss hits 57% of revenue.',imp:'MED'},{t:'Valuation Above History',b:'P/E 31.6x vs 3-yr avg 22x. Perfect execution is priced in.',imp:'MED'},{t:'Global Regulatory',b:'EU AI Act, UK CMA, FTC investigations create ongoing costs.',imp:'LOW'}],
+   verdict:'Alphabet is executing at an exceptional level: Q4 2025 was a landmark beat with revenues $10B above estimates and Google Cloud growing at its fastest pace in years. The financial position — $110B+ net cash, 34%+ op margins, 32.8% net margin — is among the strongest in global tech. The DOJ antitrust risk is binary and real. At 31.6x P/E above own history, risk score 45/100 reflects elevated but manageable risk against spectacular execution.',
+   consensus:'STRONG BUY',pt:{bear:'$260',base:'$357',bull:'$430'},analysts:'44 analysts · Avg PT $357.61 · Next: Apr 29',rating_active:'rs-b'},
+
+  {id:'meta',sym:'META',name:'Meta Platforms Inc.',sector:'Social Media · AI · AR/VR',price:'$676.73',chg:'+2.41%',wk52:'+39.3%',pe:'28.5x',cap:'$1.71T',risk:35,rating:'STR BUY',color:'#1877f2',
+   kpis:[{n:'P/E (TTM)',v:'28.5x',d:'Near 10-yr median',dc:'dg'},{n:'FCF',v:'$46.1B',d:'LTM strong',dc:'dg'},{n:'Rev Growth',v:'+21%◈',d:'FY25 est',dc:'dg'},{n:'Op Margin',v:'41.4%',d:'Record high',dc:'dg'},{n:'D/E Ratio',v:'0.39',d:'Low leverage',dc:'dg'},{n:'DAP',v:'3.58B',d:'+7% YoY',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'28.5x',b:'Near 10-yr median of 28.19x — at fair value',s:'FAIR VALUE',sc:'g'},{l:'Fwd P/E',v:'22.1x',b:'Forward multiple implies 28%+ EPS growth ahead',s:'ATTRACTIVE',sc:'g'},{l:'PEG Ratio',v:'1.03',b:'PEG near 1.0 for a 30%+ grower — exceptional',s:'COMPELLING',sc:'g'},{l:'EV/EBITDA',v:'16.8x',b:'Well below other Mag 7 on this metric',s:'CHEAP',sc:'g'},{l:'P/FCF',v:'37.1x',b:'FCF $46.1B growing strongly',s:'REASONABLE',sc:'g'},{l:'GF Value',v:'Undervalued',b:'GuruFocus $769 GF Value vs current $676',s:'BELOW VALUE',sc:'g'}],
+   finCards:[{l:'Current Ratio',v:'2.60',b:'Very healthy; well above 2.0x',s:'EXCELLENT',sc:'g'},{l:'D/E Ratio',v:'0.39',b:'Rising with capex but manageable',s:'MANAGEABLE',sc:'g'},{l:'Cash',v:'$81.6B',b:'Net cash negative by $3.5B; offset by FCF',s:'ADEQUATE',sc:'a'},{l:'Op Margin',v:'41.4%',b:'Record high; AI-powered efficiency gains',s:'RECORD',sc:'g'},{l:'FCF',v:'$46.1B',b:'Op CF $115.8B - capex $69.7B — best in class',s:'EXCEPTIONAL',sc:'g'},{l:'ROIC',v:'27.8%',b:'Among highest ROIC in S&P 500',s:'BEST CLASS',sc:'g'}],
+   growCards:[{l:'Rev Growth',v:'+19%',b:'FY25 $200.97B; advertising efficiency via AI',s:'STRONG',sc:'g'},{l:'EPS Growth',v:'+39.5%',b:'3-yr EPS CAGR — exceptional compounding',s:'EXCEPTIONAL',sc:'g'},{l:'Ad Rev',v:'+21%',b:'Advantage+ AI suite at $60B ARR',s:'ACCELERATING',sc:'g'},{l:'DAP Growth',v:'+7%',b:'3.58B daily active people — unique scale',s:'STICKY',sc:'g'},{l:'Llama / AI',b:'Open-source Llama 4 driving AI moat and talent',v:'MOAT',s:'STRATEGIC',sc:'g'},{l:'Guidance',v:'BEAT',b:'Consistent multi-quarter beat cadence',s:'RELIABLE',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:10,max:35,col:'#00d084'},{name:'Financial Health Risk',wt:'35%',pts:9,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:16,max:30,col:'#ffb547'}],
+   qrows:[{q:'Q2 2025',rev:'$47.5B',rvs:'+$1.5B',eps:'$6.43',est:'$5.27E',beat:true,gm:'41% op',cloud:'Adv+ ARR est',yoy:'+19%'},{q:'Q3 2025',rev:'$50.3B',rvs:'+$1.8B',eps:'$6.03',est:'$5.25E',beat:true,gm:'41% op',cloud:'',yoy:'+19%'},{q:'Q4 2025 ★',rev:'$55.3B',rvs:'+$2.0B',eps:'$8.02',est:'$6.76E',beat:true,gm:'48% op',cloud:'',yoy:'+21%',hl:true},{q:'Q1 2026E',rev:'$43.5B◈',rvs:'—',eps:'$5.25◈',est:'—',beat:null,gm:'~40%◈',cloud:'',yoy:'~16%◈'}],
+   update:{hd:'Q4 2025 + Q1 2026 Preview (Apr 29)',hl:'Meta Delivers Record Q4; AI Advantage+ at $60B ARR; Custom MTIA Chip Deal with Broadcom',bullets:['Q4 2025: Revenue $55.3B (+21%), EPS $8.02 (massive beat over $6.76 est); op margin 48% — record.','Daily active people 3.58B (+7% YoY); Advantage+ AI advertising suite at $60B annual run rate.','Apr 14: 1GW custom MTIA chips on 2nm process with Broadcom announced — long-term silicon cost advantage.'],quote:'"AI is now deeply embedded in every part of our business." — Mark Zuckerberg'},
+   cats:[{t:'AI Ads Flywheel — $60B ARR',b:'Advantage+ AI suite automating ad creation and targeting — driving 15-20% higher advertiser ROAS.',imp:'HIGH'},{t:'3.58B DAP — Unmatched Scale',b:'Network effects at 3.58B daily users are impossible to replicate; advertisers have no alternative.',imp:'HIGH'},{t:'Best-in-Class Margins',b:'41.4% op margin with FCF of $46B; GF Score 99/100 — top-rated company in class.',imp:'HIGH'},{t:'Llama 4 Open Source Moat',b:'Open-source AI attracts developer ecosystem and enterprise deals; differentiates from closed models.',imp:'MED'},{t:'Ray-Ban Meta Wearables',b:'AR glasses gaining traction; 1.5M+ units; sets foundation for post-mobile hardware.',imp:'MED'}],
+   risks:[{t:'$10B+ Workforce Cuts Coming',b:'Reports of 8,000-10,000 additional layoffs in May 2026; execution and morale risk.',imp:'MED'},{t:'Reality Labs Losses',b:'RL losing $5B+/yr; VR/AR yet to generate meaningful revenue.',imp:'MED'},{t:'Regulatory / Antitrust',b:'FTC suit, EU data privacy fines; ongoing risk to data monetization.',imp:'MED'},{t:'Teen Usage Scrutiny',b:'Congressional scrutiny of under-18 usage; potential regulatory restrictions.',imp:'LOW'},{t:'Advertising Cyclicality',b:'Ad revenue is cyclical; recession scenario could hit revenues 15-20%.',imp:'LOW'}],
+   verdict:'Meta is the most attractively valued Mag 7 company on a fundamental basis. P/E near its 10-year median of 28x, PEG of 1.03 for a 30%+ grower, and $46B in FCF make this a rare combination of growth and value. The AI ads flywheel via Advantage+ is a genuine structural moat. Risk score 35/100 is the lowest in our Mag 7 coverage — reflecting superior financial quality, diversified revenue, and consistent beat execution.',
+   consensus:'STRONG BUY',pt:{bear:'$580',base:'$838',bull:'$1,100'},analysts:'68 analysts · Avg PT $838.63 · Next: Apr 29',rating_active:'rs-sb'},
+
+  {id:'amzn',sym:'AMZN',name:'Amazon.com, Inc.',sector:'E-Commerce · AWS · Advertising',price:'$255.36',chg:'+0.23%',wk52:'+43%',pe:'35.6x',cap:'$2.75T',risk:52,rating:'STR BUY',color:'#ff9900',
+   kpis:[{n:'P/E (TTM)',v:'35.6x',d:'◈ vs sector 28x',dc:'da'},{n:'EV/EBITDA',v:'19.2x',d:'↓ Near 10-yr avg',dc:'dg'},{n:'Rev Growth',v:'+12.4%',d:'FY25 $716.9B',dc:'dg'},{n:'FCF',v:'$14.9B',d:'Q4 -16% YoY',dc:'dr'},{n:'D/E Ratio',v:'0.43',d:'↑ Rising w/ capex',dc:'da'},{n:'AWS Growth',v:'+24%',d:'Re-accelerating',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'35.6x',b:'Above sector avg but margin expansion justifies',s:'SLIGHT PREMIUM',sc:'a'},{l:'P/S Ratio',v:'3.84x',b:'Low vs high-margin tech peers; margin upside',s:'ATTRACTIVE',sc:'g'},{l:'EV/Revenue',v:'3.85x◈',b:'Reasonable for 11%+ op margin business',s:'REASONABLE',sc:'g'},{l:'PEG Ratio',v:'1.70',b:'Moderate; growth must sustain 20%+ EPS CAGR',s:'MODERATE',sc:'a'},{l:'P/FCF',v:'364x',b:'Extremely compressed by $200B capex — key risk',s:'CAPEX CRISIS',sc:'r'},{l:'EV/EBITDA',v:'19.2x',b:'Near 10-yr avg of 23x; actually reasonable',s:'FAIR VALUE',sc:'g'}],
+   finCards:[{l:'Current Ratio',v:'1.05',b:'Tight; Amazon runs lean on working capital',s:'MONITOR',sc:'a'},{l:'D/E Ratio',v:'0.43',b:'Rising as capex financed via debt',s:'RISING',sc:'a'},{l:'Interest Cov.',v:'~15x◈',b:'Op income $80B vs ~$5B interest',s:'COMFORTABLE',sc:'g'},{l:'Cash',v:'$29.9B',b:'Net cash positive but tight vs $200B capex',s:'ADEQUATE',sc:'a'},{l:'Capex/Rev',v:'27.9%',b:'$200B capex 2026; analysts expected $146B',s:'ALARM LEVEL',sc:'r'},{l:'FCF Yield',v:'0.54%',b:'Q4 FCF $14.9B (-16% YoY); severely compressed',s:'COMPRESSED',sc:'a'}],
+   growCards:[{l:'Rev Growth',v:'+12.4%',b:'FY25 $716.9B; op margin record 11.2%',s:'STEADY',sc:'g'},{l:'EPS Growth',v:'+29%',b:'FY25 EPS $7.17; 2.5x revenue growth rate',s:'STRONG',sc:'g'},{l:'AWS Growth',v:'+24%',b:'Q4: $35.6B — fastest in 13 quarters; backlog +40%',s:'RE-ACCELERATING',sc:'g'},{l:'Op Margin',v:'11.2%',b:'FY25 record; $80B operating income',s:'RECORD',sc:'g'},{l:'Ad Growth',v:'+22%',b:'$21.3B Q4; high-margin; custom chip ARR',s:'STRONG',sc:'a'},{l:'Guidance',v:'MIXED',b:'Q4 EPS $1.95 vs $1.97 — narrow miss; capex shock',s:'NEAR MISS',sc:'r'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:19,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:16,max:35,col:'#ffb547'},{name:'Growth & Execution Risk',wt:'30%',pts:17,max:30,col:'#ff4d6d'}],
+   qrows:[{q:'Q2 2025',rev:'$159.3B',rvs:'+$1.9B',eps:'$1.43',est:'$1.25E',beat:true,gm:'10.9% op',cloud:'$28.8B',yoy:'+19%'},{q:'Q3 2025',rev:'$158.9B◈',rvs:'+$1.5B◈',eps:'$1.43◈',est:'—',beat:true,gm:'11.5%◈',cloud:'$31.4B',yoy:'+21%◈'},{q:'Q4 2025 ★',rev:'$213.4B',rvs:'+$2.1B',eps:'$1.95',est:'$1.97E',beat:false,gm:'11.7% op',cloud:'$35.6B',yoy:'+14%',hl:true},{q:'Q1 2026E',rev:'~$176B◈',rvs:'—',eps:'~$1.40◈',est:'—',beat:null,gm:'~12%◈',cloud:'~$40B◈',yoy:'~10%◈'}],
+   update:{hd:'Q4 2025 (Feb 5, 2026)',hl:'Amazon Q4: Revenue Beat, EPS Near-Miss — $200B Capex Shocks Market',bullets:['Revenue $213.4B (+13.6% YoY) beat by $2.1B; EPS $1.95 vs $1.97 — rare narrow miss. Stock fell 8%.','AWS $35.6B (+24% YoY) — "fastest growth in 13 quarters"; $244B backlog grew +40% YoY.','2026 capex guided at $200B (analysts expected $146.6B) — shock to the market.'],quote:'"AWS growth is accelerating and our chip business is now above $20B ARR growing triple-digits." — Andy Jassy'},
+   cats:[{t:'AWS Re-Acceleration +24%',b:'Fastest AWS growth in 13 quarters; $244B backlog = 6+ quarters of visibility.',imp:'HIGH'},{t:'Custom AI Silicon $20B+ ARR',b:'Graviton, Trainium, Nitro growing triple-digits — underappreciated margin-rich stream.',imp:'HIGH'},{t:'Op Margin Expansion Path',b:'FY25 11.2% record; AWS mix + ads + fulfillment efficiency = 13%+ by FY27.',imp:'MED'},{t:'Advertising $21B/Quarter',b:'Growing 22% — nearly pure-profit funding capex cycle.',imp:'MED'},{t:'EV/Sales 3.8x — Discount',b:'Retail alone at 3.8x sales is cheap vs cloud peers.',imp:'LOW'}],
+   risks:[{t:'$200B Capex — 37% Above Est.',b:'FCF near-zero for 12-18 months; equity-funded debt could dilute.',imp:'HIGH'},{t:'EPS Miss Pattern',b:'Q4 narrow EPS miss. Depreciation from data centers could compress GAAP EPS 2-3 years.',imp:'HIGH'},{t:'Tariff & Trade War',b:'Retail sourcing from China/Asia exposed to tariff escalation.',imp:'MED'},{t:'AWS Competitive Pressure',b:'Azure (+39%) and GCP (+48%) growing faster off smaller bases.',imp:'MED'},{t:'Current Ratio 1.05',b:'With $200B capex ahead; any revenue shortfall could force debt issuance.',imp:'LOW'}],
+   verdict:'Amazon is simultaneously the most compelling AI infrastructure story and the most complex risk-reward. AWS re-accelerating to 24%, $244B backlog, $20B+ AI chip ARR at triple-digit growth, and record 11.2% op margins are exceptional. The $200B capex — $53B above expectations — is the defining risk, compressing FCF for 12-18 months. Risk score 52/100 is the highest in the three-pack. For investors with a 2-3 year horizon, this remains a conviction buy.',
+   consensus:'STRONG BUY',pt:{bear:'$175',base:'$284',bull:'$360'},analysts:'42 analysts · Avg PT $284.81 · Next: Apr 29',rating_active:'rs-sb'},
+
+  {id:'tsla',sym:'TSLA',name:'Tesla Inc.',sector:'EVs · Energy · Robotaxi · AI',price:'$388.73',chg:'+0.82%',wk52:'+49.8%',pe:'346x',cap:'$1.46T',risk:78,rating:'HOLD',color:'#ef4444',
+   kpis:[{n:'P/E (TTM)',v:'346x',d:'↑ 126% above median',dc:'dr'},{n:'EV/EBITDA',v:'126x',d:'Extremely rich',dc:'dr'},{n:'Op Margin',v:'4.9%',d:'Collapsed from 17%',dc:'dr'},{n:'FCF',v:'$7.0B',d:'Pressure rising',dc:'da'},{n:'Revenue',v:'$97.9B',d:'FY25 LTM',dc:'da'},{n:'Beta',v:'1.92',d:'High vol',dc:'dr'}],
+   valCards:[{l:'P/E (TTM)',v:'346x',b:'126% above own 10-yr median of 152x — extreme',s:'EXTREME PREMIUM',sc:'r'},{l:'P/S Ratio',v:'14.9x',b:'Rich for an automaker; only justified by AI story',s:'VERY ELEVATED',sc:'r'},{l:'EV/EBITDA',v:'126x',b:'vs auto industry median 19x — 566% premium',s:'SPECULATIVE',sc:'r'},{l:'PEG Ratio',v:'4.50',b:'PEG of 4.5x signals growth priced in many times over',s:'DANGER ZONE',sc:'r'},{l:'GF Value',v:'Overvalued',b:'GF Value $254 vs current $388 — 46.9% above fair',s:'OVERVALUED',sc:'r'},{l:'Mkt Cap',v:'$1.46T',b:'Implies a dominant AI/Robotaxi business by 2030',s:'PRICING FUTURE',sc:'a'}],
+   finCards:[{l:'Op Margin',v:'4.9%',b:'Collapsed from 17% in 2022; cost cuts help but delayed',s:'ALARM',sc:'r'},{l:'Net Cash',v:'$28.9B',b:'$44.7B cash vs $15.9B debt — positive',s:'STRONG',sc:'g'},{l:'Gross Margin',v:'19.1%',b:'Auto: ~14%; improving but price war ongoing',s:'RECOVERING',sc:'a'},{l:'D/E Ratio',v:'0.19',b:'Low leverage; debt raised for AI spend',s:'LOW',sc:'g'},{l:'FCF',v:'$7.0B',b:'LTM; capex rising to $25B in 2026',s:'COMPRESSING',sc:'r'},{l:'Capex 2026',v:'$25B',b:'Raised from $20B — AI/Cybercab/Optimus',s:'SURGING',sc:'a'}],
+   growCards:[{l:'Auto Rev Growth',v:'-1%',b:'Q4 2025 auto revenue $24.9B — declining YoY',s:'DECLINING',sc:'r'},{l:'Energy Rev',v:'+25%',b:'Q4 2025: $3.84B; record storage 14.2 GWh',s:'BRIGHT SPOT',sc:'g'},{l:'Services Rev',v:'+18%',b:'$3.37B Q4; FSD subscriptions growing',s:'POSITIVE',sc:'g'},{l:'Cybercab Prod.',v:'Started',b:'Cybercab rolling off Austin Gigafactory — H1 2026',s:'WATCH',sc:'a'},{l:'Optimus Robots',v:'1K/wk',b:'Internal deployment at Giga; commercial TBD',s:'VERY EARLY',sc:'a'},{l:'FSD Progress',v:'v13',b:'v13 showing improvement; still limited autonomy',s:'SLOW',sc:'r'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:32,max:35,col:'#ff4d6d'},{name:'Financial Health Risk',wt:'35%',pts:18,max:35,col:'#ffb547'},{name:'Growth & Execution Risk',wt:'30%',pts:28,max:30,col:'#ff4d6d'}],
+   qrows:[{q:'Q2 2025',rev:'$22.5B',rvs:'+$0.4B',eps:'$0.40',est:'$0.32E',beat:true,gm:'13.9% auto',cloud:'Ener $3.3B',yoy:'-8%'},{q:'Q3 2025',rev:'$25.2B',rvs:'+$0.5B',eps:'$0.72',est:'$0.58E',beat:true,gm:'16.3% auto',cloud:'Ener $3.5B',yoy:'+8%'},{q:'Q4 2025',rev:'$24.9B',rvs:'−$0.4B',eps:'$0.73',est:'$0.75E',beat:false,gm:'13.6% auto',cloud:'Ener $3.8B',yoy:'-3%'},{q:'Q1 2026 ★',rev:'$22.4B',rvs:'+$0.3B',eps:'$0.41',est:'$0.35E',beat:true,gm:'12.5% auto',cloud:'Ener $3.2B',yoy:'-5%',hl:true},{q:'Q2 2026E',rev:'$24.2B◈',rvs:'—',eps:'$0.43◈',est:'—',beat:null,gm:'~13%◈',cloud:'~$3.5B◈',yoy:'~8%◈'}],
+   update:{hd:'Q1 2026 (Apr 22, 2026)',hl:'Tesla Q1 Beat on EPS — Cybercab Production Confirmed; Robotaxi Timeline Slips',bullets:['Revenue $22.4B (+beat); EPS $0.41 vs $0.35 est (+17% beat) — mainly cost cuts, not volume.','Cybercab production confirmed started at Austin Gigafactory; ride-hailing rollout delayed to H2 2026.','Capex raised to $25B for 2026 (from $20B); analysts estimate $11.6B cash burn (Morgan Stanley).'],quote:'"Autonomy is the defining value driver of Tesla." — Elon Musk'},
+   cats:[{t:'Cybercab Autonomous Robotaxi',b:'Cybercab in production; if licensed and scaled, robotaxi TAM could reach $1T+ by 2035.',imp:'HIGH'},{t:'Optimus Robot — Factory First',b:'1,000 robots/week in Tesla factories; commercial deployment could be worth more than cars.',imp:'HIGH'},{t:'Energy Business +25%',b:'Megapack storage hitting record deployments; energy becoming a legitimate $15B+ segment.',imp:'MED'},{t:'FSD Autonomy Progress',b:'v13 + Dojo supercomputer training; each improvement raises FSD subscription attach rate.',imp:'MED'},{t:'Terafab AI Chip Plan',b:'Tesla using Intel 14A process for internal AI chips — reducing NVIDIA dependence.',imp:'LOW'}],
+   risks:[{t:'P/E 346x — Priced for Perfection',b:'Any robotaxi delay or margin miss can send stock -20%. Priced for optionality, not fundamentals.',imp:'HIGH'},{t:'Core Auto Revenue Declining',b:'Q4 auto rev -3% YoY; Q1 -5%. Price wars with BYD, China EV makers are structural.',imp:'HIGH'},{t:'Elon Musk DOGE Distraction',b:'Political involvement reduces brand equity especially in Europe/blue states. Sales declining.',imp:'HIGH'},{t:'$25B Capex — Not Yet ROI',b:'Company says AI projects haven\'t boosted revenue or profits yet. When? Execution risk is real.',imp:'MED'},{t:'Robotaxi Regulatory Risk',b:'FSD deaths, regulatory pushback; CA, TX permitting uncertainty for driverless deployment.',imp:'MED'}],
+   verdict:'Tesla is simultaneously the most exciting and the most risky stock in our universe. The bull case — Cybercab, Optimus, FSD — is transformative if it happens. The bear case is that the core auto business is in structural decline with -3% to -5% revenue growth, margins below 14%, and the EV market commoditizing. At 346x trailing P/E, you are paying for 2030 optionality, not 2026 earnings. HOLD until execution on robotaxi materializes. Risk score 78/100.',
+   consensus:'HOLD',pt:{bear:'$100',base:'$405',bull:'$650'},analysts:'~30 analysts · Avg PT $405.47 · Next: Jul 29',rating_active:'rs-h'},
+
+  {id:'mrvl',sym:'MRVL',name:'Marvell Technology Inc.',sector:'AI Semiconductors · Networking · ASIC',price:'$147.84',chg:'+4.74%',wk52:'+185.9%',pe:'57.1x',cap:'$122B',risk:58,rating:'COND BUY',color:'#6c63ff',
+   kpis:[{n:'P/E (TTM)',v:'57.1x',d:'Fwd 38.6x',dc:'da'},{n:'Rev Growth',v:'+42%',d:'FY26 record',dc:'dg'},{n:'Gross Margin',v:'59.0%',d:'+640bps YoY',dc:'dg'},{n:'FCF (LTM)',v:'$1.4B',d:'Solid gen',dc:'dg'},{n:'Data Center',v:'74%',d:'Of Q4 revenue',dc:'dg'},{n:'PT (avg)',v:'$121',d:'Below current',dc:'dr'}],
+   valCards:[{l:'P/E (TTM)',v:'57.1x',b:'Above peers but AI growth story justifies premium',s:'ELEVATED',sc:'a'},{l:'Fwd P/E',v:'38.6x',b:'Compresses to 15.9x on CY2027E EPS of $5.43',s:'COMPRESSING',sc:'g'},{l:'PEG Ratio',v:'0.98',b:'Sub-1 PEG for 30%+ CAGR company = undervalued',s:'FAVORABLE',sc:'g'},{l:'EV/EBITDA',v:'50.4x',b:'Rich vs broad semis; reflects AI ASIC optionality',s:'PREMIUM',sc:'a'},{l:'P/S Ratio',v:'14.9x',b:'At $122B cap for $8.2B revenue — stretched',s:'ELEVATED',sc:'a'},{l:'Analyst PT',v:'$121',b:'Current price $147 exceeds avg consensus target',s:'ABOVE PT',sc:'r'}],
+   finCards:[{l:'Non-GAAP GM',v:'59.0%',b:'Q4 FY26; up 640bps YoY via ASIC mix shift',s:'EXPANDING',sc:'g'},{l:'Net Debt',v:'-$2.15B',b:'$4.79B debt / $2.64B cash; D/E 0.33',s:'MODERATE',sc:'a'},{l:'FCF (LTM)',v:'$1.4B',b:'$1.75B op CF - $354M capex',s:'SOLID',sc:'g'},{l:'Current Ratio',v:'2.01',b:'Comfortable above 1.5x threshold',s:'HEALTHY',sc:'g'},{l:'Op Margin',v:'35.7%',b:'Q4 FY26; strong operating leverage on 42% growth',s:'HIGH LEVERAGE',sc:'g'},{l:'ROIC',v:'7.2%',b:'Low vs ROE 19.25% — goodwill from acquisitions',s:'WATCH M&A',sc:'a'}],
+   growCards:[{l:'FY26 Rev Growth',v:'+42%',b:'$8.195B — record full-year driven by data center',s:'RECORD',sc:'g'},{l:'Custom Silicon',v:'$1.5B',b:'FY26 ASIC revenue doubled; guided to 2x in FY28',s:'HYPERGROWTH',sc:'g'},{l:'FY27 Guide',v:'~$11B',b:'Raised from ~$10B; implies 34%+ growth',s:'RAISED',sc:'g'},{l:'FY28 Target',v:'~$15B',b:'~40% YoY; non-GAAP EPS "well over $5"',s:'VISIBILITY',sc:'g'},{l:'Customer Conc.',v:'HIGH',b:'Amazon, Google key hyperscalers — concentration risk',s:'WATCH',sc:'a'},{l:'EPS Growth',v:'+81%',b:'$2.84 non-GAAP vs $1.57 prior year',s:'OP LEVERAGE',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:24,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:15,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:19,max:30,col:'#ffb547'}],
+   qrows:[{q:'Q2 FY26',rev:'$1.874B',rvs:'BEAT',eps:'$0.62',est:'est',beat:true,gm:'58.5%',cloud:'$1.18B DC',yoy:'+37%'},{q:'Q3 FY26',rev:'$2.075B',rvs:'BEAT',eps:'$0.76',est:'est',beat:true,gm:'59.1%',cloud:'$1.518B DC',yoy:'+37%'},{q:'Q4 FY26 ★',rev:'$2.219B',rvs:'+$19M',eps:'$0.80',est:'$0.71E',beat:true,gm:'59.0%',cloud:'$1.650B DC',yoy:'+22%',hl:true},{q:'Q1 FY27E',rev:'$2.4B◈',rvs:'GUIDED',eps:'~$0.72◈',est:'—',beat:null,gm:'~59%◈',cloud:'~$1.9B◈',yoy:'+28%◈'}],
+   update:{hd:'Q4 FY2026 (Mar 5, 2026)',hl:'Marvell Posts Record Q4: $2.219B Revenue; FY28 Target Raised to ~$15B',bullets:['Revenue $2.219B (+$19M vs guide); non-GAAP EPS $0.80 beat $0.71 est by 12.7%.','Data center hit record $1.65B (74% of total); custom ASIC doubled to $1.5B FY26.','FY27 guide raised to ~$11B; FY28 target ~$15B; completed Celestial AI and XConn acquisitions.'],quote:'"Our AI custom silicon business is scaling faster than anyone expected." — Matt Murphy, CEO'},
+   cats:[{t:'Custom ASIC Pipeline (50+ Programs)',b:'50+ ASIC programs across 10+ hyperscaler customers; most are still in early revenue ramp.',imp:'HIGH'},{t:'1.6T Interconnect in Production',b:'First-to-market on 1.6T optical interconnect; 2nm DSP in sampling — technology cycle advantage.',imp:'HIGH'},{t:'Silicon Photonics (Celestial AI)',b:'Celestial AI acquisition + Nvidia $2B silicon photonics deal cements optical moat.',imp:'MED'},{t:'FY28 $15B Revenue Visibility',b:'Management-guided $15B target backed by booked demand — rare forward visibility.',imp:'MED'},{t:'Operating Leverage Flywheel',b:'EPS growing 2x faster than revenue (+81% FY26). Margin expansion guided through FY28.',imp:'MED'}],
+   risks:[{t:'Stock Exceeds Analyst Price Targets',b:'At ~$147, trades above consensus PT of ~$121-$126. Near-term upside from Wall Street limited.',imp:'HIGH'},{t:'Hyperscaler Concentration',b:'Amazon and Google dominant customers. Any budget re-prioritization hits hard.',imp:'HIGH'},{t:'P/E 57x — No Margin of Safety',b:'Trailing 57x means any guidance miss triggers sharp de-rating (beta 1.82).',imp:'MED'},{t:'M&A Integration (Celestial + XConn)',b:'Two recent acquisitions increase integration risk and suppress ROIC at 7.2%.',imp:'MED'},{t:'Broadcom Competition',b:'Broadcom competes directly in custom silicon and networking with larger balance sheet.',imp:'LOW'}],
+   verdict:'Marvell has executed a remarkable transformation into an AI-native data infrastructure semiconductor company. FY26 was a breakout year: record $8.2B revenue (+42%), non-GAAP EPS nearly doubling, and data center at 74% of revenue. The FY27-28 roadmap is backed by visible custom ASIC demand. The risk is in the price — at ~$147, MRVL now trades above most analyst targets. Conditional Buy: accumulate on pullbacks toward $120-130.',
+   consensus:'COND BUY',pt:{bear:'$85',base:'$121',bull:'$172'},analysts:'32 analysts · Avg PT ~$121-$126 · Next: Jun 4',rating_active:'rs-b'},
+
+  {id:'jpm',sym:'JPM',name:'JPMorgan Chase & Co.',sector:'Banking · Investment Banking',price:'$322.48',chg:'+1.05%',wk52:'+28%',pe:'15.2x',cap:'~$913B',risk:32,rating:'STR BUY',color:'#2563eb',
+   kpis:[{n:'P/E (TTM)',v:'15.2x',d:'◈ Sector avg 14x',dc:'dg'},{n:'Revenue',v:'$50.5B',d:'Q1 2026',dc:'dg'},{n:'Net Income',v:'$16.5B',d:'Q1 2026',dc:'dg'},{n:'Trading Rev',v:'$11.6B',d:'Record Q1',dc:'dg'},{n:'Div Yield',v:'~2.3%',d:'Growing',dc:'dg'},{n:'Analyst PT',v:'$340',d:'+5% upside',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'15.2x',b:'In-line with sector avg; reasonable for #1 US bank',s:'FAIR VALUE',sc:'g'},{l:'P/B Ratio',v:'~2.0x',b:'Premium to book justified by ROE >16%',s:'JUSTIFIED',sc:'g'},{l:'Dividend Yield',v:'~2.3%',b:'Growing dividend; $1.25/share quarterly',s:'INCOME',sc:'g'},{l:'EV/Revenue',v:'2.8x◈',b:'Financial services valuation',s:'REASONABLE',sc:'g'},{l:'Price/Book',v:'2.1x',b:'ROE above cost of equity justifies premium',s:'FAIR',sc:'g'},{l:'Analyst PT',v:'$340',b:'Evercore raised to $340; BofA on US 1 List',s:'UPSIDE',sc:'g'}],
+   finCards:[{l:'Tier 1 Capital',v:'15.3%',b:'Well above regulatory minimum; fortress balance sheet',s:'FORTRESS',sc:'g'},{l:'NIM',v:'~2.7%',b:'Net interest margin stable; rate environment supportive',s:'STABLE',sc:'g'},{l:'NPL Ratio',v:'<1%',b:'Non-performing loans minimal; credit quality strong',s:'EXCELLENT',sc:'g'},{l:'Deposits',v:'$2.68T',b:'Largest US deposit base; low-cost funding',s:'DOMINANT',sc:'g'},{l:'Loan Growth',v:'$1.5T',b:'Q1 2026 loans grew to $1.5T',s:'GROWING',sc:'g'},{l:'ROE',v:'>16%',b:'Consistently above cost of capital',s:'STRONG',sc:'g'}],
+   growCards:[{l:'Q1 2026 Rev',v:'$50.5B',b:'Beat estimates; record trading revenue of $11.6B',s:'RECORD',sc:'g'},{l:'Trading Revenue',v:'$11.6B',b:'Record Q1 driven by market volatility and client activity',s:'RECORD',sc:'g'},{l:'IB Fees',v:'Growing',b:'Top global IB market share 8.4%; IPO pipeline $160B',s:'STRONG',sc:'g'},{l:'Wealth Mgmt',v:'$7.1T',b:'$7.1T assets under management; growing fees',s:'SCALE',sc:'g'},{l:'Digital Banking',v:'78M',b:'78M+ active digital customers; Chase #1 US bank',s:'DOMINANT',sc:'g'},{l:'Guidance',v:'Conservative',b:'Jamie Dimon cautious on economy but bullish on bank',s:'WATCH',sc:'a'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:10,max:35,col:'#00d084'},{name:'Financial Health Risk',wt:'35%',pts:8,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:14,max:30,col:'#ffb547'}],
+   qrows:[{q:'Q3 2025',rev:'$43.3B',rvs:'BEAT',eps:'$4.37',est:'$4.01E',beat:true,gm:'NI $12.9B',cloud:'IB solid',yoy:'+7%'},{q:'Q4 2025',rev:'$42.7B',rvs:'BEAT',eps:'$4.81',est:'$4.03E',beat:true,gm:'NI $14.0B',cloud:'Trading rec',yoy:'+11%'},{q:'Q1 2026 ★',rev:'$50.5B',rvs:'+$4.5B',eps:'$5.07',est:'$4.63E',beat:true,gm:'NI $16.5B',cloud:'Trade $11.6B',yoy:'+8%',hl:true}],
+   update:{hd:'Q1 2026 (Apr 14, 2026)',hl:'JPMorgan Record Q1: $16.5B Net Income, $11.6B Trading Revenue — Best Quarter in Bank History',bullets:['Revenue $50.5B beat estimates by ~$4.5B; net income $16.5B; EPS $5.07 beat $4.63 est.','Trading revenue $11.6B — record in history, driven by market volatility from Iran war and trade tensions.','Q1 saw 8 globally systemically important banks return $46.17B in dividends+buybacks — JPM leading.'],quote:'"The U.S. economy is resilient, but we remain vigilant about geopolitical risks." — Jamie Dimon'},
+   cats:[{t:'Record Trading Revenue',b:'$11.6B Q1 2026 — geopolitical volatility is a trading tailwind. War = JPM profits.',imp:'HIGH'},{t:'$7.1T AUM — Wealth Mgmt',b:'Asset and wealth management growing; fee income less rate-sensitive than NIM.',imp:'HIGH'},{t:'Top IB Fees Share',b:'8.4% global IB market share; $160B IPO pipeline for 2026.',imp:'MED'},{t:'Digital Banking Scale',b:'78M+ digital customers; Chase app most-used bank app in US.',imp:'MED'},{t:'Kinexys Payment Rails',b:'Potential to white-label blockchain payment infrastructure for smaller banks — SaaS-like margins.',imp:'LOW'}],
+   risks:[{t:'Jamie Dimon Succession Risk',b:'Largest key-man risk in financial sector; no clear successor widely known.',imp:'HIGH'},{t:'Credit Cycle Risk',b:'If recession hits, loan losses could spike. Current ratio and reserves are key.',imp:'MED'},{t:'Interest Rate Sensitivity',b:'Fed rate cuts would compress NIM; rate environment uncertainty a headwind.',imp:'MED'},{t:'Regulatory Capital Requirements',b:'Basel III Endgame could require more capital, limiting buybacks.',imp:'MED'},{t:'Geopolitical Risk',b:'Exposure to global markets and trade finance during US-Iran conflict.',imp:'LOW'}],
+   verdict:'JPMorgan is the gold standard in global banking. Record Q1 2026 results with $11.6B trading revenue demonstrate the bank\'s unique positioning in volatile markets. At 15.2x P/E, fortress balance sheet (15.3% Tier 1), $7.1T AUM, and #1 US deposit base, this is the safest way to own the US economy. Risk score 32/100 reflects best-in-class financial health. The key risk is Jamie Dimon\'s eventual succession.',
+   consensus:'STR BUY',pt:{bear:'$250',base:'$340',bull:'$420'},analysts:'~28 analysts · Avg PT $329.62 · BofA US 1 List',rating_active:'rs-sb'},
+
+  {id:'xom',sym:'XOM',name:'Exxon Mobil Corporation',sector:'Integrated Energy · Oil & Gas',price:'$148.85',chg:'+0.48%',wk52:'+37.9%',pe:'22.3x',cap:'$625B',risk:52,rating:'BUY',color:'#f97316',
+   kpis:[{n:'P/E (TTM)',v:'22.3x',d:'vs sector avg',dc:'da'},{n:'Revenue',v:'$323.9B',d:'FY25 (−4.5%)',dc:'dr'},{n:'Earnings',v:'$28.8B',d:'FY25 (−14%)',dc:'dr'},{n:'Div Yield',v:'~3.8%',d:'Growing +4%/yr',dc:'dg'},{n:'Oil Price',v:'$94.40',d:'WTI · Iran war',dc:'da'},{n:'Analyst PT',v:'$161',d:'+8% upside',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'22.3x',b:'Above 5-yr avg; elevated oil prices boost earnings',s:'MODERATE',sc:'a'},{l:'EV/EBITDA',v:'9.5x',b:'vs industry median — EV/EBITDA discount exists',s:'REASONABLE',sc:'g'},{l:'P/FCF',v:'~18x',b:'Generating ~$35B+ FCF at $90+ oil',s:'ATTRACTIVE',sc:'g'},{l:'Dividend Yield',v:'~3.8%',b:'42-yr consecutive increase; dividend aristocrat',s:'STRONG INCOME',sc:'g'},{l:'P/B Ratio',v:'~2.0x',b:'Fair for integrated major with upstream assets',s:'FAIR VALUE',sc:'g'},{l:'Analyst PT',v:'$161',b:'Median PT $165; Barclays maintains Buy',s:'UPSIDE',sc:'g'}],
+   finCards:[{l:'Net Income',v:'$28.8B',b:'FY25; down 14% on lower oil price vs 2024',s:'OIL DEPENDENT',sc:'a'},{l:'Free Cash Flow',v:'$35B+',b:'Strong at $94 oil; declining on lower energy prices',s:'SOLID',sc:'g'},{l:'Debt/Equity',v:'~0.20',b:'Conservative leverage for integrated major',s:'LOW',sc:'g'},{l:'Upstream Earnings',v:'Up $1.6-2.2B',b:'Q1 guided upstream earnings increase on Iran war',s:'BOOSTED',sc:'g'},{l:'Dividend',v:'$3.96/sh',b:'+4% increase for 42nd consecutive year',s:'ARISTOCRAT',sc:'g'},{l:'Buybacks',v:'$20B/yr',b:'$20B annual buyback program ongoing',s:'RETURNING',sc:'g'}],
+   growCards:[{l:'Revenue',v:'-4.5%',b:'FY25 $323.9B; lower oil prices vs 2024',s:'CYCLICAL DIP',sc:'a'},{l:'Upstream Q1',v:'+$1.6-2.2B',b:'Iran war-driven oil spike boosting Q1 upstream',s:'TAILWIND',sc:'g'},{l:'Guyana Growth',b:'Pioneer acquisition adding 600K+ barrels/day',v:'Production',s:'KEY ASSET',sc:'g'},{l:'LNG Expansion',v:'Golden Pass',b:'Golden Pass LNG starting — long-term gas export play',s:'STRATEGIC',sc:'g'},{l:'Low Carbon',v:'Growing',b:'Carbon capture, hydrogen, lower-emission fuels R&D',s:'ESG PIVOT',sc:'a'},{l:'Cost Reduction',v:'$9B saved',b:'$9B+ structural cost savings since 2019 — efficiency',s:'DISCIPLINE',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:18,max:35,col:'#ffb547'},{name:'Financial Health Risk',wt:'35%',pts:12,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:22,max:30,col:'#ff4d6d'}],
+   qrows:[{q:'Q3 2025',rev:'$87.8B',rvs:'BEAT',eps:'$1.92',est:'$1.87E',beat:true,gm:'~9% NM',cloud:'Upstream strong',yoy:'-5%'},{q:'Q4 2025',rev:'$82.3B',rvs:'+$1.7B',eps:'$1.71',est:'$1.70E',beat:true,gm:'~8% NM',cloud:'Pioneer adds',yoy:'-3%',hl:true},{q:'Q1 2026E',rev:'~$81B◈',rvs:'—',eps:'~$1.04◈',est:'—',beat:null,gm:'~8%◈',cloud:'Iran uplift',yoy:'-1%◈'}],
+   update:{hd:'Q4 2025 + Q1 2026 Preview (May 1)',hl:'Exxon Q4 Narrow Beat; Iran War Adds $1.6-2.2B to Q1 Upstream Earnings',bullets:['Q4 EPS $1.71 vs $1.70 est — narrow beat; FY25 net income $28.8B (-14%) on lower oil vs 2024.','Q1 2026 upstream earnings guided up $1.6-2.2B vs Q4 — Iran war pushing WTI to $94+.','Pioneer acquisition fully integrated; Guyana adding 600K+ barrels/day of high-margin production.'],quote:'"We\'re well positioned for sustained strong performance through the energy transition." — Darren Woods, CEO'},
+   cats:[{t:'Iran War Oil Price Uplift',b:'WTI at $94+; every $10/bbl of oil = ~$4B incremental EPS for XOM. War is a tailwind.',imp:'HIGH'},{t:'Pioneer Integration ($60B deal)',b:'Pioneer adds 600K+ barrels/day of Permian production at low cost; accretive from day 1.',imp:'HIGH'},{t:'42-Year Dividend Aristocrat',b:'$3.96/share dividend growing 4%/yr; institutional investors anchor position here.',imp:'MED'},{t:'Guyana Offshore Growth',b:'World-class deepwater field; still ramping; long-term production growth visibility.',imp:'MED'},{t:'$20B Annual Buybacks',b:'Reducing share count 3-4%/yr; enhances per-share metrics.',imp:'MED'}],
+   risks:[{t:'Oil Price Crash Risk',b:'Iran peace deal could collapse oil to $70; WTI below $70 = XOM earnings fall 40%+.',imp:'HIGH'},{t:'Energy Transition Risk',b:'Long-term demand for oil declining; ExxonMobil needs to reinvent by 2035+.',imp:'HIGH'},{t:'Regulatory/ESG Risk',b:'Carbon taxes, European regulations, anti-fossil-fuel sentiment constrain capital.',imp:'MED'},{t:'Goldman Sachs Hold Rating',b:'Goldman downgraded to Hold citing geopolitical uncertainty; stock could retreat on peace.',imp:'MED'},{t:'Geopolitical Supply Risk',b:'Exposure to Venezuela, Middle East — political disruptions can hit production.',imp:'LOW'}],
+   verdict:'ExxonMobil is the premier energy major for 2026 — but it\'s a geopolitical trade as much as a fundamental one. The Iran war has been a windfall (WTI at $94, +$1.6-2.2B upstream Q1 boost), the Pioneer acquisition is accretive, and Guyana is a world-class long-life asset. The 3.8% dividend and $20B buyback make this a shareholder returns machine. Risk 52/100 reflects oil price volatility — the key bear case is any Iran peace deal collapsing the oil price.',
+   consensus:'BUY',pt:{bear:'$123',base:'$161',bull:'$195'},analysts:'25 analysts · Avg PT $161.55 · Zacks Strong Buy',rating_active:'rs-b'},
+
+  {id:'unh',sym:'UNH',name:'UnitedHealth Group Inc.',sector:'Managed Care · Healthcare · Optum',price:'$354.92',chg:'+8.80%',wk52:'-30%◈',pe:'21.7x',cap:'$322B',risk:35,rating:'BUY',color:'#0ea5e9',
+   kpis:[{n:'P/E (TTM)',v:'21.7x',d:'↑ vs 12-mo avg',dc:'da'},{n:'Q1 EPS',v:'$7.23',b:'vs $6.65 est',dc:'dg'},{n:'Q1 Revenue',v:'$111.7B',b:'Record',dc:'dg'},{n:'FY26 Guide',v:'>$18.25',b:'Raised',dc:'dg'},{n:'Div Yield',v:'2.49%',d:'$2.21/qtr',dc:'dg'},{n:'Analyst PT',v:'$383',d:'+8% upside',dc:'dg'}],
+   valCards:[{l:'P/E (TTM)',v:'21.7x',b:'Below own 5-yr avg 24.76x; discount post-selloff',s:'ATTRACTIVE',sc:'g'},{l:'Fwd P/E',v:'~19x◈',b:'Based on $18.25+ EPS guidance for FY26',s:'REASONABLE',sc:'g'},{l:'P/S Ratio',v:'0.72x',b:'Very low P/S for quality healthcare franchise',s:'CHEAP',sc:'g'},{l:'Div Yield',v:'2.49%',b:'$8.84 annualized; growing 12%/yr historically',s:'INCOME',sc:'g'},{l:'PEG Ratio',v:'~1.4◈',b:'Reasonable for defensive healthcare compounder',s:'MODERATE',sc:'a'},{l:'52-Wk Range',v:'$240-$620',b:'Has fallen ~60% from highs; recovery beginning',s:'RECOVERING',sc:'a'}],
+   finCards:[{l:'Revenue FY25',v:'$447.6B',b:'Up 11.8% YoY — healthcare inflation driving premiums',s:'GROWING',sc:'g'},{l:'Net Income',v:'$12.1B',b:'FY25 -16.3% — medical cost ratio spike weighed',s:'RECOVERING',sc:'a'},{l:'Dividend',v:'$2.21/qtr',b:'42nd consecutive annual increase',s:'ARISTOCRAT',sc:'g'},{l:'D/E Ratio',v:'~0.55◈',b:'Managed leverage; investment grade debt',s:'MANAGEABLE',sc:'a'},{l:'Current Ratio',v:'~0.85◈',b:'Insurance companies operate below 1; normal',s:'SECTOR NORM',sc:'a'},{l:'ROIC',v:'~14%◈',b:'Strong ROIC for managed care model',s:'SOLID',sc:'g'}],
+   growCards:[{l:'Q1 Rev',v:'$111.7B',b:'Record Q1 2026; all segments exceeded plan',s:'RECORD',sc:'g'},{l:'Q1 EPS',v:'$7.23',b:'+9.7% beat vs $6.65 est — strongest beat in 2 years',s:'BEAT',sc:'g'},{l:'Guidance Raised',v:'>$18.25',b:'Raised from $17.75; implies $18.25-$18.75 FY26',s:'POSITIVE',sc:'g'},{l:'Medicare Adv.',v:'Tailwind',b:'CMS boosted Medicare Advantage rate for 2027 — stock +8%',s:'CATALYST',sc:'g'},{l:'Optum Health',v:'Growing',b:'500M AI transactions in 2026 through Optum Real',s:'AI ADOPTION',sc:'g'},{l:'Medical Cost Ratio',v:'Improving',b:'Actions taken over last several quarters showing results',s:'IMPROVING',sc:'g'}],
+   scores:[{name:'Valuation Risk',wt:'35%',pts:12,max:35,col:'#00d084'},{name:'Financial Health Risk',wt:'35%',pts:11,max:35,col:'#00d084'},{name:'Growth & Execution Risk',wt:'30%',pts:12,max:30,col:'#00d084'}],
+   qrows:[{q:'Q3 2025',rev:'$100.8B◈',rvs:'BEAT◈',eps:'$6.51◈',est:'$6.20E◈',beat:true,gm:'Medical cost ratio',cloud:'Optum strong',yoy:'+8%◈'},{q:'Q4 2025',rev:'$110.0B◈',rvs:'BEAT◈',eps:'$6.81◈',est:'$6.70E◈',beat:true,gm:'Improved MCR',cloud:'MA guidance',yoy:'+9%◈'},{q:'Q1 2026 ★',rev:'$111.7B',rvs:'BEAT',eps:'$7.23',est:'$6.65E',beat:true,gm:'MCR improving',cloud:'All segs beat',yoy:'+12%',hl:true}],
+   update:{hd:'Q1 2026 (Apr 22, 2026)',hl:'UnitedHealth Q1 Beat + Guide Raise: Strongest Quarter in 2 Years — Medicare Rate Boost',bullets:['Q1 2026 EPS $7.23 vs $6.65 est (+9.7% beat) — strongest quarterly beat in 2 years; revenue $111.7B.','Full-year EPS guidance raised to >$18.25 (from $17.75); all four segments exceeded internal plan.','Apr 24: CMS boosted Medicare Advantage rates for 2027 — stock +8.8% on the news.'],quote:'"Q1 saw all segments exceed plan, with strong Medicare and Optum results." — Andrew Witty, CEO'},
+   cats:[{t:'Q1 2026 — Strongest Beat in 2 Years',b:'$7.23 EPS vs $6.65 est; all segments exceeded plan. Medical cost management working.',imp:'HIGH'},{t:'Medicare Advantage Rate Boost (CMS)',b:'CMS 2027 rate increase is a direct tailwind; margins in MA should improve.',imp:'HIGH'},{t:'Optum AI (500M Transactions)',b:'Optum Real AI platform processing 500M claims this year; efficiency gains ongoing.',imp:'MED'},{t:'$18.25+ FY26 Guidance Raised',b:'Raised from $17.75; implies confidence in medical cost improvement.',imp:'MED'},{t:'Post-Selloff Valuation',b:'Stock down ~60% from highs; P/E 21.7x below own 24.76x 5-yr avg — discount.',imp:'MED'}],
+   risks:[{t:'GLP-1 Weight Loss Drug Coverage',b:'CMS $50/mo GLP-1 pilot; UNH pushing back but may have to cover — margin risk.',imp:'HIGH'},{t:'CEO Andrew Witty Health Risk',b:'Witty on medical leave; Brian Thompson tragedy created leadership uncertainty.',imp:'MED'},{t:'Medical Cost Ratio Uncertainty',b:'If medical costs re-spike, could miss guidance again like 2025.',imp:'MED'},{t:'Regulatory Scrutiny',b:'DOJ investigation into Medicare Advantage billing practices ongoing.',imp:'MED'},{t:'Prior Authorization Pressure',b:'Congressional/regulatory pressure to limit prior auth could hurt margin.',imp:'LOW'}],
+   verdict:'UnitedHealth has navigated a brutal 2025 (stock down 60% from highs) and is showing genuine recovery. Q1 2026 beat was the strongest in 2 years, guidance was raised, and the CMS Medicare Advantage rate boost is a direct tailwind. At P/E 21.7x — below own 5-yr average — and P/S of 0.72x, this is one of the cheapest quality healthcare stocks in a decade. Risk score 35/100 reflects a clear recovery path with manageable risks.',
+   consensus:'BUY',pt:{bear:'$240',base:'$383',bull:'$500◈'},analysts:'26 analysts · Avg PT $383.31 · Morgan Stanley Top Pick $375',rating_active:'rs-b'},
 ];
 
-// ── BUILD CARDS ──
-function buildCards() {
-  const grid = document.getElementById('cards-grid');
-  grid.innerHTML = '';
-  const barGrad = r => r < 40 ? 'linear-gradient(90deg,#00d084,#22c55e)' : r < 65 ? 'linear-gradient(90deg,#ffb547,#f97316)' : 'linear-gradient(90deg,#ff4d6d,#dc2626)';
+const SECTORS_DATA = [
+  {id:'tech',label:'💻 Technology',color:'#6c63ff',ytd:'+18.4%',avgRisk:43,avgPE:'28x',topPick:'MSFT',desc:'Largest S&P 500 sector at ~31% weight. AI capital expenditure supercycle drives cloud, chips, and software in 2026. Hyperscalers investing $500B+ collectively in data center infrastructure.',
+  stocks:[{sym:'MSFT',name:'Microsoft',sub:'Cloud · AI · Enterprise',price:'$415.75',chg:'+2.04%',pe:'26.5x',cap:'$3.08T',risk:38,rating:'STR BUY',color:'#00bcf0',id:'msft',p1:'Azure +33% YoY',p2:'FCF $77.4B',tag:'MEGA CAP'},{sym:'NVDA',name:'NVIDIA',sub:'AI Chips · Data Center',price:'$208.27',chg:'+4.74%',pe:'40.7x',cap:'~$2.5T',risk:48,rating:'STR BUY',color:'#76b900',id:'nvda',p1:'Rev +65% FY26',p2:'FwdPE 24.5x',tag:'AI LEADER'},{sym:'AAPL',name:'Apple',sub:'Consumer Tech · Services',price:'$270.90',chg:'+0.87%',pe:'34.3x',cap:'$4.09T',risk:42,rating:'STR BUY',color:'#d1d5db',id:'aapl',p1:'Svc Rev +14%',p2:'$4.09T cap',tag:'SERVICES'}]},
+  {id:'comm',label:'📱 Comm Services',color:'#84cc16',ytd:'+22.1%',avgRisk:40,avgPE:'30x',topPick:'META',desc:'Social media, search, streaming, and telecom. Alphabet and Meta dominate, both benefiting from AI-powered advertising. Google Cloud at 48% growth and Meta Advantage+ at $60B ARR are key 2026 drivers.',
+  stocks:[{sym:'GOOGL',name:'Alphabet',sub:'Search · Cloud · AI',price:'$344.12',chg:'+1.71%',pe:'31.6x',cap:'$4.08T',risk:45,rating:'STR BUY',color:'#4285f4',id:'googl',p1:'Cloud +48% YoY',p2:'DOJ risk',tag:'SEARCH MOAT'},{sym:'META',name:'Meta Platforms',sub:'Social Media · AI · VR',price:'$676.73',chg:'+2.41%',pe:'28.5x',cap:'$1.71T',risk:35,rating:'STR BUY',color:'#1877f2',id:'meta',p1:'3.58B DAP',p2:'FCF $46B',tag:'AI ADS'}]},
+  {id:'fin',label:'🏦 Financials',color:'#00d084',ytd:'+12.8%',avgRisk:36,avgPE:'14x',topPick:'JPM',desc:'Banks, investment firms, and insurance. JPMorgan leads with record Q1 2026 trading revenue of $11.6B. Sector benefits from elevated rates and volatile markets driving trading volume.',
+  stocks:[{sym:'JPM',name:'JPMorgan Chase',sub:'Banking · Investment',price:'$322.48',chg:'+1.05%',pe:'15.2x',cap:'~$913B',risk:32,rating:'STR BUY',color:'#2563eb',id:'jpm',p1:'Q1 NI $16.5B',p2:'Record trading',tag:'LARGEST BANK'},{sym:'GS',name:'Goldman Sachs',sub:'Investment Banking',price:'$926.35',chg:'+0.80%',pe:'13.8x',cap:'~$296B',risk:38,rating:'BUY',color:'#1a56db',id:'',p1:'Q1 NI $5.63B',p2:'IPO $160B',tag:'IB ELITE'},{sym:'V',name:'Visa Inc',sub:'Payments · Fintech',price:'$362.44',chg:'+0.95%',pe:'31x',cap:'~$740B',risk:30,rating:'STR BUY',color:'#1a1f71',id:'',p1:'FCF yield 4.5%',p2:'Low D/E',tag:'PAYMENTS'}]},
+  {id:'health',label:'💊 Healthcare',color:'#06b6d4',ytd:'+8.3%',avgRisk:38,avgPE:'21x',topPick:'UNH',desc:'Pharma, biotech, managed care, and medical devices. UNH Q1 2026 beat + guidance raise. Medicare Advantage rate boost is a 2026 tailwind.',
+  stocks:[{sym:'UNH',name:'UnitedHealth',sub:'Managed Care · Optum',price:'$354.92',chg:'+8.80%',pe:'21.7x',cap:'$322B',risk:35,rating:'BUY',color:'#0ea5e9',id:'unh',p1:'Q1 EPS $7.23 beat',p2:'Guide raised',tag:'Q1 BEAT'},{sym:'JNJ',name:'J&J',sub:'Pharma · MedTech',price:'$159.48',chg:'+0.62%',pe:'21.7x',cap:'~$383B',risk:30,rating:'STR BUY',color:'#dc2626',id:'',p1:'Beat & raise Q1',p2:'Div aristocrat',tag:'DEFENSIVE'},{sym:'LLY',name:'Eli Lilly',sub:'Pharma · GLP-1',price:'$798.42',chg:'+1.24%',pe:'52x',cap:'~$758B',risk:48,rating:'STR BUY',color:'#7c3aed',id:'',p1:'Mounjaro/Zepbound',p2:'Rev +45% 2025',tag:'GLP-1'}]},
+  {id:'cons',label:'🛒 Consumer',color:'#a855f7',ytd:'-2.4%',avgRisk:54,avgPE:'38x',topPick:'COST',desc:'Discretionary includes EVs and high-growth retail; Staples covers defensive consumer goods. Tesla leads discretionary with highest risk. Costco premium on membership stability.',
+  stocks:[{sym:'TSLA',name:'Tesla Inc',sub:'EVs · Energy · Robotaxi',price:'$388.73',chg:'+0.82%',pe:'346x',cap:'$1.46T',risk:78,rating:'HOLD',color:'#ef4444',id:'tsla',p1:'Cybercab started',p2:'Capex $25B 2026',tag:'HIGH RISK'},{sym:'COST',name:'Costco',sub:'Membership Retail',price:'$1,011',chg:'-0.32%',pe:'54x',cap:'$450B',risk:38,rating:'STR BUY',color:'#a855f7',id:'',p1:'$1,067 52wk high',p2:'Membership moat',tag:'PREMIUM'},{sym:'PG',name:'P&G',sub:'Consumer Staples',price:'$168.22',chg:'+0.41%',pe:'26x',cap:'~$396B',risk:24,rating:'STR BUY',color:'#7c3aed',id:'',p1:'Div aristocrat 68yr',p2:'Low beta 0.5',tag:'DEFENSIVE'}]},
+  {id:'energy',label:'⛽ Energy',color:'#f97316',ytd:'+38.9%',avgRisk:55,avgPE:'17x',topPick:'XOM',desc:'Oil & gas majors are 2026 outperformers driven by US-Israel-Iran conflict pushing WTI crude to $94+. XOM and CVX hit ATH in March 2026. Peace talks could deflate the rally sharply.',
+  stocks:[{sym:'XOM',name:'ExxonMobil',sub:'Integrated Energy',price:'$148.85',chg:'+0.48%',pe:'22.3x',cap:'$625B',risk:52,rating:'BUY',color:'#f97316',id:'xom',p1:'ATH $176 Mar 2026',p2:'Pioneer adds',tag:'OIL MAJOR'},{sym:'CVX',name:'Chevron',sub:'Integrated Energy',price:'$187.60',chg:'+0.69%',pe:'16x',cap:'~$340B',risk:50,rating:'BUY',color:'#ea580c',id:'',p1:'Upstream earnings ↑',p2:'BRK.B holding',tag:'DIVIDEND'}]},
+  {id:'ind',label:'🏗 Industrials',color:'#ffb547',ytd:'+6.1%',avgRisk:42,avgPE:'22x',topPick:'GE',desc:'Defense, aerospace, and manufacturing. GE Aerospace on commercial aviation recovery and defense contracts. Caterpillar on infrastructure. RTX on Iran conflict demand.',
+  stocks:[{sym:'GE',name:'GE Aerospace',sub:'Aerospace · Defense',price:'$218.34',chg:'+1.12%',pe:'42x',cap:'~$236B',risk:40,rating:'STR BUY',color:'#ffb547',id:'',p1:'LEAP engine demand',p2:'Services +14%',tag:'AVIATION'},{sym:'CAT',name:'Caterpillar',sub:'Heavy Equipment',price:'$382.15',chg:'+0.88%',pe:'18x',cap:'~$190B',risk:37,rating:'STR BUY',color:'#f59e0b',id:'',p1:'US infra spending',p2:'Margin expanding',tag:'INFRA'},{sym:'RTX',name:'RTX Corp',sub:'Defense · Aerospace',price:'$141.22',chg:'+0.55%',pe:'20x',cap:'~$187B',risk:38,rating:'BUY',color:'#6366f1',id:'',p1:'Iran conflict demand',p2:'Pratt booked',tag:'DEFENSE'}]},
+  {id:'util',label:'⚡ Utilities',color:'#22d3ee',ytd:'+11.2%',avgRisk:33,avgPE:'24x',topPick:'NEE',desc:'Traditionally defensive. But 2026 is different — AI data center power demand is transforming utilities into AI infrastructure plays. NextEra is the largest clean energy company globally.',
+  stocks:[{sym:'NEE',name:'NextEra Energy',sub:'Renewables · Power',price:'$68.42',chg:'+0.88%',pe:'24x',cap:'~$139B',risk:32,rating:'STR BUY',color:'#22d3ee',id:'',p1:'Data center power',p2:'Div +10%/yr',tag:'CLEAN ENERGY'},{sym:'SO',name:'Southern Co',sub:'Electric Utilities',price:'$92.18',chg:'+0.44%',pe:'20x',cap:'~$99B',risk:28,rating:'STR BUY',color:'#06b6d4',id:'',p1:'Vogtle Unit 4',p2:'AI data centers',tag:'NUCLEAR+AI'}]},
+  {id:'mat',label:'🧪 Materials',color:'#e879f9',ytd:'+5.8%',avgRisk:46,avgPE:'19x',topPick:'LIN',desc:'Chemicals, mining, raw materials. Linde dominates industrial gases. Nucor on domestic steel. Gold miners surging as gold hits ATH above $4,700/oz.',
+  stocks:[{sym:'LIN',name:'Linde PLC',sub:'Industrial Gases',price:'$478.33',chg:'+0.71%',pe:'33x',cap:'~$238B',risk:35,rating:'STR BUY',color:'#e879f9',id:'',p1:'Hydrogen infra',p2:'AI cooling gases',tag:'GAS LEADER'},{sym:'NUE',name:'Nucor Corp',sub:'Steel Manufacturing',price:'$138.55',chg:'+0.95%',pe:'12x',cap:'~$18B',risk:44,rating:'BUY',color:'#a855f7',id:'',p1:'Domestic steel',p2:'P/E 12x cheap',tag:'VALUE'}]},
+  {id:'re',label:'🏢 Real Estate',color:'#ec4899',ytd:'+3.2%',avgRisk:44,avgPE:'42x',topPick:'EQIX',desc:'REITs face rate headwinds but data center REITs are booming. Equinix and Digital Realty benefit from AI infrastructure. Office REITs remain challenged.',
+  stocks:[{sym:'EQIX',name:'Equinix Inc',sub:'Data Center REITs',price:'$842.11',chg:'+1.34%',pe:'79x',cap:'~$74B',risk:42,rating:'STR BUY',color:'#ec4899',id:'',p1:'Data center demand',p2:'Div yield 2.1%',tag:'AI REIT'},{sym:'AMT',name:'American Tower',sub:'Cell Tower REITs',price:'$198.44',chg:'+0.78%',pe:'41x',cap:'~$92B',risk:40,rating:'BUY',color:'#f43f5e',id:'',p1:'5G densification',p2:'Div yield 2.9%',tag:'5G+AI'}]},
+];
 
-  STOCKS.forEach(s => {
-    const href = s.tabId ? `${s.href}?tab=${s.tabId}` : s.href;
-    grid.innerHTML += `
-    <a class="stock-card ${s.cardClass} fade-up" href="${href}">
-      <div class="sc-top">
-        <span class="sc-ticker-badge ${s.badgeClass}">${s.sym}</span>
-        <div class="sc-risk-score">
-          <span class="risk-num" style="color:${s.riskColor}">${s.risk}</span>
-          <span class="risk-lbl">Risk Score</span>
-        </div>
-      </div>
-      <div class="sc-name">${s.name}</div>
-      <div class="sc-sector">${s.sector}</div>
-      <div class="sc-price-row">
-        <span class="sc-price">${s.price}</span>
-        <span class="sc-chg ${s.chgUp?'up':'dn'}">${s.chgUp?'▲':'▼'} ${s.chg}</span>
-      </div>
-      <div class="sc-metrics">
-        <div class="sc-metric"><div class="scm-label">${s.m1}</div><div class="scm-val">${s.m1v}</div></div>
-        <div class="sc-metric"><div class="scm-label">${s.m2}</div><div class="scm-val">${s.m2v}</div></div>
-        <div class="sc-metric"><div class="scm-label">${s.m3}</div><div class="scm-val">${s.m3v}</div></div>
-      </div>
-      <div class="sc-bar-wrap">
-        <div class="sc-bar-label">
-          <span class="sc-bar-lbl">Risk Level</span>
-          <span class="sc-bar-val" style="color:${s.riskColor}">${s.riskLabel} · ${s.risk}/100</span>
-        </div>
-        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:${s.risk}%;background:${barGrad(s.risk)}"></div></div>
-      </div>
-      <div class="sc-footer">
-        <span class="sc-rating ${s.ratingClass}">${s.rating}</span>
-        <span class="sc-arrow">View Report →</span>
-      </div>
-    </a>`;
-  });
+const ALL_STOCKS_TABLE = [
+  {sym:'MSFT',name:'Microsoft',sect:'Technology',price:'$415.75',wk52:'+20.1%',pe:'26.5x',cap:'$3.08T',risk:38,rating:'STR BUY',id:'msft'},
+  {sym:'AAPL',name:'Apple',sect:'Technology',price:'$270.90',wk52:'+14%',pe:'34.3x',cap:'$4.09T',risk:42,rating:'STR BUY',id:'aapl'},
+  {sym:'NVDA',name:'NVIDIA',sect:'Technology',price:'$208.27',wk52:'+~50%',pe:'40.7x',cap:'~$2.5T',risk:48,rating:'STR BUY',id:'nvda'},
+  {sym:'GOOGL',name:'Alphabet',sect:'Comm Svcs',price:'$344.12',wk52:'+124.3%',pe:'31.6x',cap:'$4.08T',risk:45,rating:'STR BUY',id:'googl'},
+  {sym:'META',name:'Meta Platforms',sect:'Comm Svcs',price:'$676.73',wk52:'+39.3%',pe:'28.5x',cap:'$1.71T',risk:35,rating:'STR BUY',id:'meta'},
+  {sym:'AMZN',name:'Amazon',sect:'Cons Disc',price:'$255.36',wk52:'+43%',pe:'35.6x',cap:'$2.75T',risk:52,rating:'STR BUY',id:'amzn'},
+  {sym:'TSLA',name:'Tesla',sect:'Cons Disc',price:'$388.73',wk52:'+49.8%',pe:'346x',cap:'$1.46T',risk:78,rating:'HOLD',id:'tsla'},
+  {sym:'MRVL',name:'Marvell Tech',sect:'Technology',price:'$147.84',wk52:'+185.9%',pe:'57.1x',cap:'$122B',risk:58,rating:'COND BUY',id:'mrvl'},
+  {sym:'JPM',name:'JPMorgan',sect:'Financials',price:'$322.48',wk52:'+28%',pe:'15.2x',cap:'~$913B',risk:32,rating:'STR BUY',id:'jpm'},
+  {sym:'GS',name:'Goldman Sachs',sect:'Financials',price:'$926.35',wk52:'+~40%',pe:'13.8x',cap:'~$296B',risk:38,rating:'BUY',id:''},
+  {sym:'V',name:'Visa',sect:'Financials',price:'$362.44',wk52:'+~15%',pe:'31x',cap:'~$740B',risk:30,rating:'STR BUY',id:''},
+  {sym:'UNH',name:'UnitedHealth',sect:'Healthcare',price:'$354.92',wk52:'-30%◈',pe:'21.7x',cap:'$322B',risk:35,rating:'BUY',id:'unh'},
+  {sym:'JNJ',name:'J&J',sect:'Healthcare',price:'$159.48',wk52:'+~5%',pe:'21.7x',cap:'~$383B',risk:30,rating:'STR BUY',id:''},
+  {sym:'LLY',name:'Eli Lilly',sect:'Healthcare',price:'$798.42',wk52:'+~20%',pe:'52x',cap:'~$758B',risk:48,rating:'STR BUY',id:''},
+  {sym:'XOM',name:'ExxonMobil',sect:'Energy',price:'$148.85',wk52:'+37.9%',pe:'22.3x',cap:'$625B',risk:52,rating:'BUY',id:'xom'},
+  {sym:'CVX',name:'Chevron',sect:'Energy',price:'$187.60',wk52:'+~25%',pe:'16x',cap:'~$340B',risk:50,rating:'BUY',id:''},
+  {sym:'COST',name:'Costco',sect:'Cons Staples',price:'$1,011',wk52:'+~20%',pe:'54x',cap:'$450B',risk:38,rating:'STR BUY',id:''},
+  {sym:'PG',name:'P&G',sect:'Cons Staples',price:'$168.22',wk52:'+~8%',pe:'26x',cap:'~$396B',risk:24,rating:'STR BUY',id:''},
+  {sym:'NFLX',name:'Netflix',sect:'Comm Svcs',price:'$108.17',wk52:'-12%◈',pe:'38x',cap:'~$465B',risk:47,rating:'BUY',id:''},
+  {sym:'GE',name:'GE Aerospace',sect:'Industrials',price:'$218.34',wk52:'+~30%',pe:'42x',cap:'~$236B',risk:40,rating:'STR BUY',id:''},
+  {sym:'CAT',name:'Caterpillar',sect:'Industrials',price:'$382.15',wk52:'+~12%',pe:'18x',cap:'~$190B',risk:37,rating:'STR BUY',id:''},
+  {sym:'RTX',name:'RTX Corp',sect:'Industrials',price:'$141.22',wk52:'+~18%',pe:'20x',cap:'~$187B',risk:38,rating:'BUY',id:''},
+  {sym:'NEE',name:'NextEra Energy',sect:'Utilities',price:'$68.42',wk52:'+~15%',pe:'24x',cap:'~$139B',risk:32,rating:'STR BUY',id:''},
+  {sym:'SO',name:'Southern Co',sect:'Utilities',price:'$92.18',wk52:'+~10%',pe:'20x',cap:'~$99B',risk:28,rating:'STR BUY',id:''},
+  {sym:'LIN',name:'Linde PLC',sect:'Materials',price:'$478.33',wk52:'+~8%',pe:'33x',cap:'~$238B',risk:35,rating:'STR BUY',id:''},
+  {sym:'NUE',name:'Nucor Corp',sect:'Materials',price:'$138.55',wk52:'+~5%',pe:'12x',cap:'~$18B',risk:44,rating:'BUY',id:''},
+  {sym:'EQIX',name:'Equinix',sect:'Real Estate',price:'$842.11',wk52:'+~12%',pe:'79x',cap:'~$74B',risk:42,rating:'STR BUY',id:''},
+  {sym:'AMT',name:'Am. Tower',sect:'Real Estate',price:'$198.44',wk52:'+~8%',pe:'41x',cap:'~$92B',risk:40,rating:'BUY',id:''},
+];
 
-  // Add card
-  grid.innerHTML += `
-  <a class="add-card fade-up" href="#" onclick="openModal();return false;">
-    <div class="add-icon">➕</div>
-    <div class="add-title">Add a New Stock</div>
-    <div class="add-sub">Generate a report with Claude,<br>upload to GitHub, add data here</div>
-  </a>`;
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function riskColor(r){return r<40?'#00d084':r<65?'#ffb547':'#ff4d6d'}
+function rClass(r){return r.includes('STR')?'b-g':r==='BUY'||r==='COND BUY'?'b-p':r==='HOLD'?'b-a':'b-r'}
+function rsegClass(r){return r.includes('STR')?'rs-sb':r==='BUY'||r==='COND BUY'?'rs-b':r==='HOLD'?'rs-h':'rs-s'}
 
-  document.getElementById('card-count').textContent = `${STOCKS.length} stocks · click to open report`;
-  document.getElementById('stock-count').textContent = STOCKS.length;
+function nav(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('main').scrollTop=0;
 }
 
-// ── BUILD TABLE ──
-function buildTable() {
-  const tbody = document.getElementById('table-body');
-  tbody.innerHTML = '';
-  const rClass = r => r.includes('STR') ? 'rating-sb' : r==='BUY'||r==='COND. BUY' ? 'rating-b' : 'rating-h';
+// ═══════════════════════════════════════
+// BUILD STOCK CARDS (Home)
+// ═══════════════════════════════════════
+function buildHomeCards(){
+  const g=document.getElementById('home-cards');
+  STOCKS.forEach(s=>{
+    const rc=riskColor(s.risk);
+    const div=document.createElement('div');
+    div.className='stock-card';
+    div.style.cssText=`--sc:${s.color}`;
+    div.innerHTML=`
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${s.color}"></div>
+      <div class="sct">
+        <span class="sc-tb" style="background:${s.color}22;color:${s.color};border:1px solid ${s.color}44">${s.sym}</span>
+        <div class="risk-b"><span class="rb-n" style="color:${rc}">${s.risk}</span><span class="rb-l">risk/100</span></div>
+      </div>
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-sec">${s.sector}</div>
+      <div class="sc-pr"><span class="sc-price">${s.price}</span><span class="sc-chg ${s.chg.startsWith('-')?'dn':'up'}">${s.chg}</span></div>
+      <div class="sc-m3">
+        <div class="sc-mc"><div class="sc-ml">P/E</div><div class="sc-mv">${s.pe}</div></div>
+        <div class="sc-mc"><div class="sc-ml">Mkt Cap</div><div class="sc-mv">${s.cap}</div></div>
+        <div class="sc-mc"><div class="sc-ml">52-Wk</div><div class="sc-mv">${s.wk52}</div></div>
+      </div>
+      <div class="bar-track" style="height:5px;margin-bottom:10px"><div class="bar-fill" style="width:${s.risk}%;background:linear-gradient(90deg,#00d084,${rc})"></div></div>
+      <div class="sc-foot">
+        <span class="badge ${rClass(s.rating)}">${s.rating}</span>
+        <span class="sc-arr">Full Report →</span>
+      </div>`;
+    div.onclick=()=>nav('stock-'+s.id, document.querySelector(`[onclick*="'stock-${s.id}'"]`));
+    g.appendChild(div);
+  });
+  // add card
+  const add=document.createElement('div');
+  add.className='add-card';
+  add.innerHTML=`<div style="font-size:28px;background:var(--dim);border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center">➕</div><div style="font-family:var(--mono);font-size:11px;color:var(--muted)">Add a New Stock</div><div style="font-size:10px;color:var(--muted);opacity:.6;text-align:center">Click to add a stock card</div>`;
+  add.onclick=openAddModal;
+  g.appendChild(add);
+}
 
-  STOCKS.forEach(s => {
-    const href = s.tabId ? `${s.href}?tab=${s.tabId}` : s.href;
-    tbody.innerHTML += `<tr>
-      <td><span class="wt-ticker">${s.sym}</span></td>
-      <td style="color:var(--muted);font-size:10px">${s.name}</td>
+// ═══════════════════════════════════════
+// BUILD STOCK DETAIL PAGES
+// ═══════════════════════════════════════
+function buildStockPages(){
+  const container=document.getElementById('stock-pages');
+  STOCKS.forEach(s=>{
+    const pg=document.createElement('div');
+    pg.className='page';
+    pg.id='page-stock-'+s.id;
+    const rc=riskColor(s.risk);
+    const barGrad=s.risk<40?`linear-gradient(90deg,#00d084,#ffb547)`:s.risk<65?`linear-gradient(90deg,#ffb547,#ff4d6d)`:`linear-gradient(90deg,#ff4d6d,#7c2d12)`;
+
+    // KPI tiles
+    const kpiHTML=s.kpis.map(k=>`<div class="kpi-tile">
+      <div class="kpi-n">${k.n}</div><div class="kpi-v">${k.v}</div>
+      <span class="kpi-d ${k.dc}">${k.d}</span>
+    </div>`).join('');
+
+    // metric cards helper
+    const mc=(arr)=>arr.map(c=>`<div class="mc mc-${c.sc}2">
+      <div class="mc-l">${c.l}</div><div class="mc-v2">${c.v}</div>
+      <div class="mc-b">${c.b}</div>
+      <div class="mc-sig" style="color:${c.sc==='g'?'var(--green)':c.sc==='r'?'var(--red)':'var(--amber)'}">● ${c.s}</div>
+    </div>`).join('');
+
+    // score bars
+    const scoreHTML=s.scores.map(sc=>`<div class="score-row">
+      <div><div class="score-name">${sc.name}</div><div class="score-wt">${sc.wt} weight</div></div>
+      <div class="bar-track" style="height:7px"><div class="bar-fill" style="width:${sc.pts/sc.max*100}%;background:${sc.col}"></div></div>
+      <div class="score-pts" style="color:${sc.col}">${sc.pts}/${sc.max}</div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--muted);text-align:right">${Math.round(sc.pts/sc.max*100)}% risk</div>
+    </div>`).join('');
+
+    // quarterly table
+    const qHTML=(s.qrows||[]).map(q=>`<tr${q.hl?' style="background:rgba(108,99,255,.06)"':''}>
+      <td style="color:${q.hl?'#a5b4fc':'#fff'};font-weight:600">${q.q}</td>
+      <td>${q.rev}</td><td>${q.rvs}</td>
+      <td>${q.eps}</td><td style="color:var(--muted)">${q.est}</td>
+      <td>${q.beat===true?'<span class="beat">BEAT</span>':q.beat===false?'<span class="miss">MISS</span>':'<span style="color:var(--muted)">—</span>'}</td>
+      <td>${q.gm}</td><td>${q.cloud}</td>
+      <td class="${q.yoy&&q.yoy.startsWith('-')?'miss':'beat'}">${q.yoy||'—'}</td>
+      <td><span class="qb ${q.hl?'qb-b':q.beat===true?'qb-b':q.beat===false?'qb-m':'qb-x'}">${q.hl?'RECORD':q.beat===true?'BEAT':q.beat===false?'MISS':'FCAST'}</span></td>
+    </tr>`).join('');
+
+    // cats + risks
+    const catHTML=(s.cats||[]).map(c=>`<div class="ic ic-g">
+      <div class="ic-title">${c.t}</div><div class="ic-body">${c.b}</div>
+      <span class="imp imp-${c.imp==='HIGH'?'h':c.imp==='MED'?'m':'l'}">${c.imp}</span>
+    </div>`).join('');
+    const riskHTML=(s.risks||[]).map(r=>`<div class="ic ic-r">
+      <div class="ic-title">${r.t}</div><div class="ic-body">${r.b}</div>
+      <span class="imp imp-${r.imp==='HIGH'?'h':r.imp==='MED'?'m':'l'}">${r.imp}</span>
+    </div>`).join('');
+
+    pg.innerHTML=`
+    <div class="detail-header">
+      <div class="dh-left">
+        <span class="ticker-big" style="background:${s.color}22;color:${s.color};border:1px solid ${s.color}44">${s.sym}</span>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#fff">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${s.sector}</div>
+        </div>
+      </div>
+      <div class="dh-right">
+        <div class="price-line">
+          <span class="price-num">${s.price}</span>
+          <span class="badge ${s.chg.startsWith('-')?'b-r':'b-g'}">${s.chg.startsWith('-')?'▼':'▲'} ${s.chg}</span>
+          <span class="badge b-p">52-wk ${s.wk52}</span>
+        </div>
+        <div style="display:flex;gap:10px;font-family:var(--mono);font-size:10px;color:var(--muted)">
+          <span>Cap: <b style="color:var(--text)">${s.cap}</b></span>
+          <span>P/E: <b style="color:var(--text)">${s.pe}</b></span>
+          <span>Apr 25, 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="switchSub('${s.id}','p1',this)">📊 Page 1 — Fundamentals</div>
+      <div class="sub-tab" onclick="switchSub('${s.id}','p2',this)">📋 Page 2 — Outlook</div>
+    </div>
+
+    <!-- PAGE 1 -->
+    <div class="sub-page active" id="sub-${s.id}-p1">
+      <div class="gauge-mini">
+        <div class="gauge-box">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Risk Score</div>
+          <div class="gauge-num" style="color:${rc}">${s.risk}</div>
+          <div class="gauge-lbl" style="color:${rc}">${s.risk<40?'LOW RISK':s.risk<65?'MODERATE RISK':'HIGH RISK'}</div>
+        </div>
+        <div class="kpi-row">${kpiHTML}</div>
+      </div>
+
+      <!-- SCORE BREAKDOWN -->
+      <div class="score-section">
+        <div class="sec-label">Risk Score Breakdown</div>
+        <div class="score-rows">
+          ${scoreHTML}
+          <div class="score-row total-row">
+            <div><div class="score-name" style="color:#fff;font-weight:700">COMPOSITE SCORE</div><div class="score-wt">Higher = More Risk</div></div>
+            <div class="bar-track" style="height:10px"><div class="bar-fill" style="width:${s.risk}%;background:${barGrad}"></div></div>
+            <div style="grid-column:3/5;display:flex;align-items:center;justify-content:flex-end">
+              <span class="grand" style="color:${rc};border-color:${rc}44;background:${rc}11">${s.risk} / 100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px"><div class="sec-label" style="margin-bottom:10px">📊 Valuation Metrics</div><div class="cards-grid">${mc(s.valCards)}</div></div>
+      <div style="margin-bottom:12px"><div class="sec-label" style="margin-bottom:10px">🏦 Financial Health</div><div class="cards-grid">${mc(s.finCards)}</div></div>
+      <div><div class="sec-label" style="margin-bottom:10px">🚀 Growth Profile</div><div class="cards-grid">${mc(s.growCards)}</div></div>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="sub-page" id="sub-${s.id}-p2">
+      <div class="sec-label" style="margin-bottom:10px">Quarterly Performance</div>
+      <div style="overflow-x:auto">
+        <table class="qtable">
+          <thead><tr><th>Quarter</th><th>Revenue</th><th>vs Est.</th><th>EPS</th><th>Est.</th><th>Beat?</th><th>Margin</th><th>Key Seg.</th><th>YoY Δ</th><th>Signal</th></tr></thead>
+          <tbody>${qHTML}</tbody>
+        </table>
+      </div>
+
+      <div class="update-box">
+        <div class="ub-hd">Latest Earnings — ${s.update.hd}</div>
+        <div class="ub-hl">${s.update.hl}</div>
+        ${s.update.bullets.map(b=>`<div class="ub-li">${b}</div>`).join('')}
+        <div class="ub-q">${s.update.quote}</div>
+      </div>
+
+      <div class="dual">
+        <div class="dc">
+          <div class="dc-hd" style="color:var(--green)">▲ Catalysts</div>
+          ${catHTML}
+        </div>
+        <div class="dc">
+          <div class="dc-hd" style="color:var(--red)">▼ Risks</div>
+          ${riskHTML}
+        </div>
+      </div>
+
+      <div class="bottom-card">
+        <div class="sec-label" style="margin-bottom:12px">Bottom Line</div>
+        <div class="bl-grid">
+          <div class="verdict">
+            <span class="cb-sb">${s.consensus} Consensus</span>
+            <p>${s.verdict}</p>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Analyst Rating Spectrum</div>
+            <div class="rating-track">
+              <div class="rseg rs-ss">STR SELL</div><div class="rseg rs-s">SELL</div>
+              <div class="rseg rs-h">HOLD</div><div class="rseg rs-b">BUY</div>
+              <div class="rseg rs-sb ${s.rating_active===s.rating_active?'':''}${s.consensus==='STRONG BUY'||s.consensus==='STR BUY'?'':''}" id="rs-${s.id}">STR BUY</div>
+            </div>
+            <div class="pt-grid">
+              <div class="pt-cell"><div class="pt-l">Bear</div><div class="pt-v" style="color:var(--red)">${s.pt.bear}</div></div>
+              <div class="pt-cell"><div class="pt-l">Base</div><div class="pt-v">${s.pt.base}</div></div>
+              <div class="pt-cell"><div class="pt-l">Bull</div><div class="pt-v" style="color:var(--green)">${s.pt.bull}</div></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--muted)">${s.analysts}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    // set active rating segment
+    setTimeout(()=>{
+      const segs=pg.querySelectorAll('.rseg');
+      const map={'rs-ss':0,'rs-s':1,'rs-h':2,'rs-b':3,'rs-sb':4};
+      segs.forEach(sg=>sg.classList.remove('active'));
+      const idx=map[s.rating_active]||3;
+      if(segs[idx])segs[idx].classList.add('active');
+    },0);
+
+    container.appendChild(pg);
+  });
+}
+
+function switchSub(id, page, el){
+  document.querySelectorAll(`#page-stock-${id} .sub-page`).forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll(`#page-stock-${id} .sub-tab`).forEach(t=>t.classList.remove('active'));
+  document.getElementById(`sub-${id}-${page}`).classList.add('active');
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// BUILD MARKET OVERVIEW
+// ═══════════════════════════════════════
+function buildMarket(){
+  // heatmap
+  const hm=document.getElementById('heatmap');
+  const hmD=[
+    {sym:'MSFT',chg:2.04},{sym:'AAPL',chg:0.87},{sym:'NVDA',chg:4.74},
+    {sym:'GOOGL',chg:1.71},{sym:'META',chg:2.41},{sym:'AMZN',chg:0.23},
+    {sym:'TSLA',chg:0.82},{sym:'JPM',chg:1.05},{sym:'GS',chg:0.80},
+    {sym:'V',chg:0.95},{sym:'UNH',chg:8.80},{sym:'JNJ',chg:0.62},
+    {sym:'LLY',chg:1.24},{sym:'XOM',chg:0.48},{sym:'CVX',chg:0.69},
+    {sym:'COST',chg:-0.32},{sym:'NEE',chg:0.88},{sym:'GE',chg:1.12},
+    {sym:'CAT',chg:0.88},{sym:'NFLX',chg:-0.42},{sym:'MRVL',chg:4.74},
+    {sym:'AMD',chg:7.58},
+  ];
+  hmD.forEach(d=>{
+    const i=Math.min(Math.abs(d.chg)/10,1);
+    const u=d.chg>=0;
+    const bg=u?`rgba(0,208,132,${.1+i*.7})`:`rgba(255,77,109,${.1+i*.7})`;
+    const col=u?'#00d084':'#ff4d6d';
+    hm.innerHTML+=`<div class="hm-cell" style="background:${bg};border:1px solid ${col}22">
+      <span class="hm-t">${d.sym}</span>
+      <span class="hm-c" style="color:${col}">${u?'+':''}${d.chg.toFixed(2)}%</span>
+    </div>`;
+  });
+
+  // mag7
+  const m7=document.getElementById('mag7');
+  const MAG7=[
+    {sym:'MSFT',price:'$415.75',chg:'+2.04%',risk:38,rating:'STR BUY',color:'#00bcf0',id:'msft'},
+    {sym:'AAPL',price:'$270.90',chg:'+0.87%',risk:42,rating:'STR BUY',color:'#d1d5db',id:'aapl'},
+    {sym:'NVDA',price:'$208.27',chg:'+4.74%',risk:48,rating:'STR BUY',color:'#76b900',id:'nvda'},
+    {sym:'GOOGL',price:'$344.12',chg:'+1.71%',risk:45,rating:'STR BUY',color:'#4285f4',id:'googl'},
+    {sym:'META',price:'$676.73',chg:'+2.41%',risk:35,rating:'STR BUY',color:'#1877f2',id:'meta'},
+    {sym:'AMZN',price:'$255.36',chg:'+0.23%',risk:52,rating:'STR BUY',color:'#ff9900',id:'amzn'},
+    {sym:'TSLA',price:'$388.73',chg:'+0.82%',risk:78,rating:'HOLD',color:'#ef4444',id:'tsla'},
+  ];
+  MAG7.forEach(s=>{
+    const rc=riskColor(s.risk);
+    const div=document.createElement('div');
+    div.className='m7';
+    div.innerHTML=`<div style="height:2px;border-radius:2px;background:linear-gradient(90deg,${s.color},${s.color}33);margin-bottom:8px"></div>
+      <div class="m7-t">${s.sym}</div><div class="m7-p">${s.price}</div>
+      <span class="badge ${s.chg.startsWith('-')?'dn up':'up'}" style="font-size:8px">${s.chg}</span>
+      <div class="m7-r" style="color:${rc};margin-top:6px">${s.risk}</div>
+      <div style="font-family:var(--mono);font-size:7px;color:var(--muted)">risk/100</div>
+      <div class="m7-bar"><div class="m7-fill" style="width:${s.risk}%;background:${rc}"></div></div>
+      <div class="m7-rt" style="color:${rc}">${s.rating}</div>`;
+    div.onclick=()=>nav('stock-'+s.id,document.querySelector(`[onclick*="'stock-${s.id}'"]`));
+    m7.appendChild(div);
+  });
+
+  // sector perf
+  const sp=document.getElementById('sec-perf');
+  [{n:'Energy (XOM/CVX)',p:38.9,c:'#f97316'},{n:'Comm Svcs (GOOGL/META)',p:22.1,c:'#84cc16'},{n:'Technology (MSFT/NVDA)',p:18.4,c:'#6c63ff'},{n:'Utilities (NEE/SO)',p:11.2,c:'#22d3ee'},{n:'Financials (JPM/GS)',p:12.8,c:'#00d084'},{n:'Healthcare (UNH/JNJ)',p:8.3,c:'#06b6d4'},{n:'Industrials (GE/CAT)',p:6.1,c:'#ffb547'},{n:'Materials (LIN/NUE)',p:5.8,c:'#e879f9'},{n:'Real Estate (EQIX)',p:3.2,c:'#ec4899'},{n:'Consumer Disc.',p:-2.4,c:'#ff4d6d'}].forEach(s=>{
+    const neg=s.p<0; const w=Math.abs(s.p)/40*100;
+    sp.innerHTML+=`<div class="sp-row">
+      <div class="sp-name">${s.n}</div>
+      <div style="flex:1;height:6px;background:var(--dim);border-radius:100px;overflow:hidden"><div style="height:100%;width:${w}%;background:${neg?'#ff4d6d':s.c};border-radius:100px"></div></div>
+      <div class="sp-v" style="color:${neg?'var(--red)':'var(--green)'}">${neg?'':'+'}${s.p}%</div>
+    </div>`;
+  });
+
+  // master table market
+  const tb=document.getElementById('master-tbody-mkt');
+  ALL_STOCKS_TABLE.forEach(s=>{
+    const rc=riskColor(s.risk);
+    tb.innerHTML+=`<tr>
+      <td style="color:#fff;font-weight:700">${s.sym}</td><td>${s.name}</td>
+      <td style="color:var(--muted);font-size:9px">${s.sect}</td><td>${s.price}</td>
+      <td>${s.pe}</td><td>${s.cap}</td>
+      <td style="color:${rc};font-weight:700">${s.risk}</td>
+      <td><div class="mini-bar"><div class="mb-fill" style="width:${s.risk}%;background:${rc}"></div></div></td>
+      <td><span class="badge ${rClass(s.rating)}" style="font-size:8px">${s.rating}</span></td>
+    </tr>`;
+  });
+
+  // top picks
+  const tp=document.getElementById('top-picks');
+  [{sym:'PG',name:"P&G",reason:'68-yr aristocrat, ultra-low risk 24',risk:24},{sym:'SO',name:'Southern Co',reason:'Defensive + nuclear + AI power sites',risk:28},{sym:'V',name:'Visa',reason:'Payment moat, FCF yield 4.5%',risk:30},{sym:'MSFT',name:'Microsoft',reason:'AI supercycle, 30% below P/E history',risk:38},{sym:'META',name:'Meta Platforms',reason:'Best margins 41%, FCF $46B, PEG 1.03',risk:35}].forEach((p,i)=>{
+    tp.innerHTML+=`<div class="top-pick">
+      <span class="tp-rank">${i+1}</span><span class="tp-sym">${p.sym}</span>
+      <div style="flex:1"><div style="font-size:11px;color:var(--text)">${p.name}</div><div style="font-size:9px;color:var(--muted)">${p.reason}</div></div>
+      <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green)">${p.risk}</span>
+    </div>`;
+  });
+
+  // earnings cal
+  const ec=document.getElementById('earnings-cal');
+  [{d:'Apr 29',syms:['MSFT','GOOGL','META','AMZN'],n:'Mag 7 Megaweek'},{d:'May 1',syms:['XOM','CVX'],n:'Big Oil Q1'},{d:'May 20',syms:['NVDA'],n:'Most watched in semis'},{d:'May 28',syms:['COST'],n:'Retail bellwether'},{d:'Jun 4',syms:['MRVL'],n:'AI interconnect'},{d:'Jul 10',syms:['UNH'],n:'Healthcare check'}].forEach(e=>{
+    ec.innerHTML+=`<div class="ec-row">
+      <span class="ec-d">${e.d}</span>
+      <div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:2px">${e.syms.map(s=>`<span class="ec-sym">${s}</span>`).join('')}</div><div class="ec-note">${e.n}</div></div>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════
+// BUILD TABLE PAGE
+// ═══════════════════════════════════════
+function buildTable(){
+  const tb=document.getElementById('all-tbody');
+  ALL_STOCKS_TABLE.forEach(s=>{
+    const rc=riskColor(s.risk);
+    const openBtn=s.id?`<button class="wt-btn" onclick="nav('stock-${s.id}',null)">Open →</button>`:`<span style="font-family:var(--mono);font-size:9px;color:var(--muted)">—</span>`;
+    tb.innerHTML+=`<tr>
+      <td style="color:#fff;font-weight:700">${s.sym}</td>
+      <td>${s.name}</td>
+      <td style="color:var(--muted)">${s.sect}</td>
       <td>${s.price}</td>
-      <td class="${s.chgUp?'up':'dn'}">${s.wkChg}</td>
-      <td>${s.pe}</td>
-      <td>${s.cap}</td>
-      <td><span class="sc-rating ${s.ratingClass}" style="font-size:8px">${s.rating}</span></td>
-      <td style="color:${s.riskColor};font-weight:700">${s.risk}</td>
-      <td><div class="mini-bar"><div class="mini-fill" style="width:${s.risk}%;background:${s.riskColor}"></div></div></td>
-      <td><a class="wt-link" href="${href}">Open →</a></td>
+      <td class="${s.wk52.startsWith('-')?'miss':'beat'}">${s.wk52}</td>
+      <td>${s.pe}</td><td>${s.cap}</td>
+      <td><span class="badge ${rClass(s.rating)}">${s.rating}</span></td>
+      <td style="color:${rc};font-weight:700">${s.risk}</td>
+      <td><div class="mini-bar"><div class="mb-fill" style="width:${s.risk}%;background:${rc}"></div></div></td>
+      <td>${openBtn}</td>
     </tr>`;
   });
 }
 
-// ── TICKER TAPE ──
-function buildTape() {
-  const items = [
-    ...STOCKS.map(s=>({sym:s.sym,price:s.price,chg:s.chg,up:s.chgUp})),
-    {sym:'SPY',price:'$701.05',chg:'+0.16%',up:true},
-    {sym:'AMD',price:'$277.70',chg:'+7.58%',up:true},
-    {sym:'INTC',price:'$67.72',chg:'+4.28%',up:true},
-    {sym:'AVGO',price:'$397.76',chg:'+0.26%',up:true},
-    {sym:'PLTR',price:'$142.57',chg:'+0.29%',up:true},
-  ];
-  const tape = document.getElementById('tape');
-  tape.innerHTML = [...items,...items].map(t=>
-    `<div class="tick-item"><span class="tick-sym">${t.sym}</span><span class="tick-price">${t.price}</span><span class="tick-chg ${t.up?'up':'dn'}">${t.chg}</span></div>`
-  ).join('');
+// ═══════════════════════════════════════
+// BUILD SECTORS
+// ═══════════════════════════════════════
+function buildSectors(){
+  const tabsEl=document.getElementById('sec-tabs');
+  const panelsEl=document.getElementById('sec-panels');
+  SECTORS_DATA.forEach((sec,i)=>{
+    const tab=document.createElement('div');
+    tab.className='sec-tab'+(i===0?' active':'');
+    tab.textContent=sec.label;
+    tab.style.cssText=i===0?`background:${sec.color};color:#fff;border-color:transparent`:'';
+    tab.onclick=()=>{
+      document.querySelectorAll('.sec-tab').forEach(t=>{t.className='sec-tab';t.style.cssText='';});
+      tab.className='sec-tab active';
+      tab.style.cssText=`background:${sec.color};color:#fff;border-color:transparent`;
+      document.querySelectorAll('.sec-panel').forEach(p=>p.classList.remove('active'));
+      document.getElementById('secpanel-'+sec.id).classList.add('active');
+    };
+    tabsEl.appendChild(tab);
+
+    const panel=document.createElement('div');
+    panel.className='sec-panel'+(i===0?' active':'');
+    panel.id='secpanel-'+sec.id;
+    const neg=sec.ytd.startsWith('-');
+    const stockCards=sec.stocks.map(s=>{
+      const rc=riskColor(s.risk);
+      const rb=s.id?`onclick="nav('stock-${s.id}',null)"`:'';
+      return `<div class="stock-card" style="cursor:${s.id?'pointer':'default'}" ${rb}>
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${s.color}"></div>
+        <div class="sct">
+          <span class="sc-tb" style="background:${s.color}22;color:${s.color};border:1px solid ${s.color}44">${s.sym} <span style="font-size:8px;opacity:.7">${s.tag}</span></span>
+          <div class="risk-b"><span class="rb-n" style="color:${rc}">${s.risk}</span><span class="rb-l">risk</span></div>
+        </div>
+        <div class="sc-name">${s.name}</div>
+        <div class="sc-sec">${s.sub}</div>
+        <div class="sc-pr"><span class="sc-price">${s.price}</span><span class="sc-chg ${s.chg.startsWith('-')?'dn':'up'}">${s.chg}</span></div>
+        <div class="sc-m3">
+          <div class="sc-mc"><div class="sc-ml">P/E</div><div class="sc-mv">${s.pe}</div></div>
+          <div class="sc-mc"><div class="sc-ml">Cap</div><div class="sc-mv">${s.cap}</div></div>
+          <div class="sc-mc"><div class="sc-ml">Highlight</div><div class="sc-mv" style="font-size:8px">${s.p1}</div></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-bottom:7px">${s.p2}</div>
+        <div class="bar-track" style="height:4px;margin-bottom:9px"><div class="bar-fill" style="width:${s.risk}%;background:linear-gradient(90deg,#00d084,${rc})"></div></div>
+        <div class="sc-foot">
+          <span class="badge ${rClass(s.rating)}">${s.rating}</span>
+          <span class="sc-arr">${s.id?'Full Report →':'Summary only'}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    panel.innerHTML=`<div class="sec-hdr-card" style="background:linear-gradient(135deg,${sec.color}0d,${sec.color}05);border-color:${sec.color}33">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px">${sec.label} — ${sec.id.charAt(0).toUpperCase()+sec.id.slice(1)}</div>
+          <div style="font-size:12px;color:var(--muted);max-width:680px;line-height:1.6">${sec.desc}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:20px">
+          <div style="font-family:var(--mono);font-size:26px;font-weight:700;color:${neg?'var(--red)':'var(--green)'}">${sec.ytd}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--muted)">YTD RETURN</div>
+        </div>
+      </div>
+      <div class="sec-stats">
+        <div class="ss"><span class="ss-v">${sec.avgPE}</span><span class="ss-l">Avg P/E</span></div>
+        <div class="ss"><span class="ss-v" style="color:${sec.avgRisk<40?'var(--green)':sec.avgRisk<65?'var(--amber)':'var(--red)'}">${sec.avgRisk}</span><span class="ss-l">Avg Risk</span></div>
+        <div class="ss"><span class="ss-v" style="color:${sec.color}">${sec.topPick}</span><span class="ss-l">Top Pick</span></div>
+        <div class="ss"><span class="ss-v">${sec.stocks.length}</span><span class="ss-l">Covered</span></div>
+      </div>
+    </div>
+    <div class="stocks-row">${stockCards}</div>`;
+    panelsEl.appendChild(panel);
+  });
 }
 
-// ── MODAL ──
-function openModal() { document.getElementById('modal').classList.add('open'); }
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+// ═══════════════════════════════════════
+// TICKER TAPE
+// ═══════════════════════════════════════
+function buildTape(){
+  const tapeData=[
+    {sym:'S&P500',p:'7,165',chg:'+0.80%',u:true},{sym:'NASDAQ',p:'24,836',chg:'+1.63%',u:true},
+    {sym:'MSFT',p:'$415.75',chg:'+2.04%',u:true},{sym:'AAPL',p:'$270.90',chg:'+0.87%',u:true},
+    {sym:'NVDA',p:'$208.27',chg:'+4.74%',u:true},{sym:'GOOGL',p:'$344.12',chg:'+1.71%',u:true},
+    {sym:'META',p:'$676.73',chg:'+2.41%',u:true},{sym:'AMZN',p:'$255.36',chg:'+0.23%',u:true},
+    {sym:'TSLA',p:'$388.73',chg:'+0.82%',u:true},{sym:'JPM',p:'$322.48',chg:'+1.05%',u:true},
+    {sym:'XOM',p:'$148.85',chg:'+0.48%',u:true},{sym:'UNH',p:'$354.92',chg:'+8.80%',u:true},
+    {sym:'MRVL',p:'$147.84',chg:'+4.74%',u:true},{sym:'AMD',p:'$277.70',chg:'+7.58%',u:true},
+    {sym:'COST',p:'$1,011',chg:'-0.32%',u:false},{sym:'GS',p:'$926.35',chg:'+0.80%',u:true},
+    {sym:'VIX',p:'18.71',chg:'-3.11%',u:false},{sym:'Gold',p:'$4,740',chg:'+0.36%',u:true},
+  ];
+  const t=document.getElementById('tape');
+  [...tapeData,...tapeData].forEach(d=>{
+    t.innerHTML+=`<div class="ti"><span class="ts">${d.sym}</span><span class="tp">${d.p}</span><span class="tc ${d.u?'up':'dn'}">${d.chg}</span></div>`;
+  });
+}
 
-// ── INIT ──
-buildCards();
-buildTable();
+// ═══════════════════════════════════════
+// ADD STOCK MODAL
+// ═══════════════════════════════════════
+function openAddModal(){document.getElementById('add-modal').classList.add('open')}
+function closeAddModal(){document.getElementById('add-modal').classList.remove('open')}
+function addStock(){
+  const sym=document.getElementById('new-ticker').value.toUpperCase().trim();
+  const name=document.getElementById('new-name').value.trim();
+  const sector=document.getElementById('new-sector').value.trim();
+  const price=document.getElementById('new-price').value.trim();
+  const risk=parseInt(document.getElementById('new-risk').value)||50;
+  const rating=document.getElementById('new-rating').value;
+  if(!sym||!name){alert('Please enter at least a Ticker and Company Name.');return;}
+  const newStock={id:sym.toLowerCase(),sym,name,sector:sector||'Unknown Sector',price:price||'N/A',chg:'N/A',wk52:'N/A',pe:'N/A',cap:'N/A',risk,rating,color:'#6c63ff',
+    kpis:[],valCards:[],finCards:[],growCards:[],scores:[{name:'Valuation Risk',wt:'35%',pts:Math.round(risk*.35),max:35,col:riskColor(risk)},{name:'Financial Health Risk',wt:'35%',pts:Math.round(risk*.35),max:35,col:riskColor(risk)},{name:'Growth Risk',wt:'30%',pts:Math.round(risk*.30),max:30,col:riskColor(risk)}],
+    qrows:[],update:{hd:'N/A',hl:'Report data not yet available',bullets:['Add full report data to the STOCKS array in the HTML file to populate this section.'],quote:'"— Placeholder"'},
+    cats:[{t:'Report Data Pending',b:'Update the STOCKS array to add full catalyst analysis.',imp:'MED'}],
+    risks:[{t:'Report Data Pending',b:'Update the STOCKS array to add full risk analysis.',imp:'MED'}],
+    verdict:'Full report data not yet available. Update the STOCKS array in the HTML file to add a complete risk report.',
+    consensus:rating,pt:{bear:'N/A',base:'N/A',bull:'N/A'},analysts:'Data pending',rating_active:'rs-b'};
+  STOCKS.push(newStock);
+  ALL_STOCKS_TABLE.push({sym,name,sect:sector||'Unknown',price:price||'N/A',wk52:'N/A',pe:'N/A',cap:'N/A',risk,rating,id:sym.toLowerCase()});
+  buildStockPages(); buildHomeCards();
+  // add sidebar item
+  const sb=document.querySelector('.sidebar .sb-item[onclick*="openAddModal"]');
+  const newItem=document.createElement('div');
+  newItem.className='sb-item';
+  newItem.innerHTML=`<span class="sb-icon">📈</span><span class="sb-label">${sym} · ${name.split(' ')[0]}</span><span class="sb-badge b-a">${risk}</span>`;
+  newItem.onclick=()=>nav('stock-'+sym.toLowerCase(),newItem);
+  sb.parentNode.insertBefore(newItem,sb);
+  closeAddModal();
+  nav('stock-'+sym.toLowerCase(),newItem);
+  alert(`✓ ${sym} added! To add full report data, update the STOCKS array in the HTML file.`);
+}
+
+// ═══════════════════════════════════════
+// TIME
+// ═══════════════════════════════════════
+function updateTime(){document.getElementById('sb-time').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+setInterval(updateTime,30000);updateTime();
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
 buildTape();
+buildHomeCards();
+buildStockPages();
+buildMarket();
+buildTable();
+buildSectors();
 </script>
 </body>
 </html>
